@@ -1,0 +1,16 @@
+{
+  "name": "hlhunt-decision-agent-example",
+  "private": true,
+  "type": "module",
+  "description": "The HL Hunt Decision Agent integration guide as runnable code.",
+  "scripts": {
+    "integrate": "node integrate.mjs",
+    "webhooks": "node webhook-server.mjs"
+  },
+  "dependencies": {
+    "@hlhunt/underwriting": "^0.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

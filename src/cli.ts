@@ -125,7 +125,7 @@ async function main(): Promise<void> {
     const secret = values.secret ?? process.env.HLHUNT_LISTEN_SECRET ?? `whsec_${randomBytes(32).toString("hex")}`
     process.stdout.write(
       `${bold("Ready.")} Forwarding ${hlhunt.mode} events to ${url.href}\n` +
-        `${dim("Your local signing secret (set HLHUNT_WEBHOOK_SECRET to it in your app):")}\n  ${secret}\n` +
+        `${dim("Verify forwarded events in your app with this signing secret:")}\n  ${secret}\n` +
         `${dim("Ctrl-C to stop.")}\n`,
     )
     const controller = new AbortController()

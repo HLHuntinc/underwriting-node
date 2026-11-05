@@ -20,6 +20,10 @@
 import { WebhookSignatureError } from "./errors"
 import type { WebhookEvent } from "./types"
 
+// Everything a webhook handler needs, from this one entry point.
+export { WebhookSignatureError } from "./errors"
+export type { WebhookEvent, WebhookEventType, WebhookEventData, LetterIssued, Decision } from "./types"
+
 export const SIGNATURE_HEADER = "x-webhook-signature"
 export const EVENT_ID_HEADER = "x-webhook-event-id"
 export const EVENT_TYPE_HEADER = "x-webhook-event-type"

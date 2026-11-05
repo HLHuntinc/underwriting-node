@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { createHmac } from "node:crypto"
 import { constructEvent, generateSignatureHeader, isEvent, verifySignature, WebhookSignatureError } from "../src/index"
 import { parseSignatureHeader } from "../src/webhooks"
+import * as webhooksEntry from "../src/webhooks"
 
 const SECRET = "whsec_" + "a".repeat(64)
 const NOW = 1_800_000_000
@@ -57,6 +58,11 @@ describe("webhook verification", () => {
   it("rejects a signed body that is not an HL Hunt event", async () => {
     const other = JSON.stringify({ hello: "world" })
     await expect(constructEvent(other, serverSign(SECRET, other, NOW), SECRET, { now: NOW })).rejects.toThrow(/not an HL Hunt event/)
+  })
+
+  it("exports everything a handler needs from the /webhooks entry", () => {
+    expect(typeof webhooksEntry.constructEvent).toBe("function")
+    expect(webhooksEntry.WebhookSignatureError).toBe(WebhookSignatureError)
   })
 
   it("parses the header leniently", () => {

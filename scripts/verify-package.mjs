@@ -25,7 +25,11 @@ check(names(esm) === names(cjs), `ESM and CJS export different names:\n  esm: ${
 check(typeof esm.HLHunt === "function" && typeof cjs.HLHunt === "function", "HLHunt is not exported from both builds")
 check(esm.VERSION === pkg.version, `src/version.ts (${esm.VERSION}) != package.json (${pkg.version})`)
 const hooks = await import(pathToFileURL(resolve(root, "dist/webhooks.js")).href)
-check(typeof hooks.constructEvent === "function", "the ./webhooks entry does not export constructEvent")
+for (const name of ["constructEvent", "verifySignature", "generateSignatureHeader", "isEvent", "WebhookSignatureError"]) {
+  check(typeof hooks[name] === "function", `the ./webhooks entry does not export ${name} (the README and the guide import it from there)`)
+}
+const hooksCjs = createRequire(import.meta.url)(resolve(root, "dist/webhooks.cjs"))
+check(names(hooks) === names(hooksCjs), "the ./webhooks ESM and CJS entries export different names")
 
 const cli = resolve(root, "dist/cli.js")
 check((statSync(cli).mode & 0o111) !== 0, "dist/cli.js is not executable")

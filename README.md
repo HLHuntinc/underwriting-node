@@ -215,7 +215,7 @@ HLHUNT_API_KEY=hlh_test_... npx @hlhunt/underwriting listen --forward-to http://
 
 ```
 Ready. Forwarding test events to http://localhost:3000/hlhunt/webhooks
-Your local signing secret (set HLHUNT_WEBHOOK_SECRET to it in your app):
+Verify forwarded events in your app with this signing secret:
   whsec_3f9c...
 12:29:38  decision.completed           cmw3xwapn00ebzjs1tuhjadjq  -> 200 27 ms
 ```

@@ -232,7 +232,7 @@ describe("waiting", () => {
 describe("uploads and downloads", () => {
   it("uploads a document as multipart with its fields", async () => {
     const m = mockFetch([json(201, { id: "doc_1" })])
-    await client(m.fetch).cases.documents.upload("case_1", { file: { data: new Uint8Array([37, 80, 68, 70]), filename: "jan.pdf", contentType: "application/pdf" }, category: "bank_statement", statement_id: "jan-2026" })
+    await client(m.fetch).cases.documents.upload("case_1", { file: { data: new Uint8Array([37, 80, 68, 70]), filename: "jan.pdf", contentType: "application/pdf" }, category: "financial", statement_id: "jan-2026" })
     const body = m.calls[0]!.init.body as FormData
     expect(body).toBeInstanceOf(FormData)
     expect((body.get("file") as File).name).toBe("jan.pdf")

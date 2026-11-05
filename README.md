@@ -88,7 +88,7 @@ const submission = await hlhunt.underwrite.create({ product_slug: "biz-credit-li
 import { readFile } from "node:fs/promises"
 await hlhunt.cases.documents.upload(submission.id, {
   file: new Blob([await readFile("./july.pdf")], { type: "application/pdf" }),
-  category: "bank_statement",
+  category: "financial",
 })
 
 const analysed = await hlhunt.cases.waitForAnalysis(submission.id)

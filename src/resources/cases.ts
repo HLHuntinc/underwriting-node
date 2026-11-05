@@ -32,7 +32,7 @@ export type Uploadable =
 
 export interface DocumentUploadParams {
   file: Uploadable
-  /** e.g. `bank_statement`. */
+  /** One of `financial` (bank statements), `id_verification`, `contract`, `stipulation`, `insurance`, `legal`, `other`. Defaults to `other`. */
   category?: string
   name?: string
   description?: string

@@ -6397,6 +6397,19 @@
                       null
                     ],
                     "description": "How this platform proves the applicant's banking. `plaid` mints a bank-verification link and is the same as `bank_link: true`. `statements` means you upload the bank statements yourself to POST /v1/cases/{id}/documents with category `financial`: no link is minted, no email is sent, and the case waits for those files rather than being analyzed immediately with nothing to analyze — the first `financial` upload starts the analysis. `none` underwrites on credit and background evidence alone. Defaults to `plaid` when `bank_link` is true, otherwise `none`. Sending this together with `bank_link` is accepted when the two agree; a contradiction (for example `statements` beside `bank_link: true`) is refused with 400 `validation_error` naming `bank_verification`, rather than one silently winning."
+                  },
+                  "scenario": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "approve",
+                      "decline",
+                      "review",
+                      null
+                    ],
+                    "description": "TEST KEYS ONLY, `POST /v1/underwrite` only. Skips the analysis and records that outcome at once (approve at the requested amount, decline, or route to review), labelled `simulated: true`. Webhooks and the adverse-action letter fire as for a real decision. Simulates the DECISION only: no bank, credit or background evidence is invented. A live key, or a batch item, gets a 400."
                   }
                 },
                 "required": [
@@ -6755,6 +6768,19 @@
                             null
                           ],
                           "description": "How this platform proves the applicant's banking. `plaid` mints a bank-verification link and is the same as `bank_link: true`. `statements` means you upload the bank statements yourself to POST /v1/cases/{id}/documents with category `financial`: no link is minted, no email is sent, and the case waits for those files rather than being analyzed immediately with nothing to analyze — the first `financial` upload starts the analysis. `none` underwrites on credit and background evidence alone. Defaults to `plaid` when `bank_link` is true, otherwise `none`. Sending this together with `bank_link` is accepted when the two agree; a contradiction (for example `statements` beside `bank_link: true`) is refused with 400 `validation_error` naming `bank_verification`, rather than one silently winning."
+                        },
+                        "scenario": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "approve",
+                            "decline",
+                            "review",
+                            null
+                          ],
+                          "description": "TEST KEYS ONLY, `POST /v1/underwrite` only. Skips the analysis and records that outcome at once (approve at the requested amount, decline, or route to review), labelled `simulated: true`. Webhooks and the adverse-action letter fire as for a real decision. Simulates the DECISION only: no bank, credit or background evidence is invented. A live key, or a batch item, gets a 400."
                         }
                       },
                       "required": [
@@ -10217,6 +10243,20 @@
               "null"
             ],
             "description": "When the link stops working, so a partner forwarding it to an applicant\nknows how long they have. `null` when the link could not be created, and\nalso when it carries no expiry."
+          },
+          "simulated": {
+            "type": "boolean",
+            "const": true,
+            "description": "Present only for a test-key `scenario`: the outcome was recorded at once and no evidence was assessed."
+          },
+          "scenario": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "decline",
+              "review"
+            ],
+            "description": "The scenario that was applied, when `simulated` is present."
           }
         },
         "required": [

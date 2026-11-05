@@ -2037,6 +2037,16 @@ export type components = {
              *       `POST /v1/cases/{id}/reanalyze` retries it. */
             pipeline_stage: string;
             product: string;
+            /**
+             * @description The scenario that was applied, when `simulated` is present.
+             * @enum {string}
+             */
+            scenario?: "approve" | "decline" | "review";
+            /**
+             * @description Present only for a test-key `scenario`: the outcome was recorded at once and no evidence was assessed.
+             * @constant
+             */
+            simulated?: true;
             /** @enum {string} */
             status: "pending" | "approved" | "declined" | "review" | "invited";
         };
@@ -5135,6 +5145,11 @@ export interface operations {
                     product_slug?: string | null;
                     /** @description WHOLE DOLLARS, never cents: 1 to 2147483647, as a number or a numeric string. OPTIONAL: omit it, or send null, when the merchant named no figure and you want the analysis to size the deal — the case is accepted and `amount` comes back null. Do not send 0 for that; 0 is read as a real request for nothing, by both the model and the auto-approve rules. `amount` is an alias, read only when this field is absent. */
                     requested_amount?: number | string | null;
+                    /**
+                     * @description TEST KEYS ONLY, `POST /v1/underwrite` only. Skips the analysis and records that outcome at once (approve at the requested amount, decline, or route to review), labelled `simulated: true`. Webhooks and the adverse-action letter fire as for a real decision. Simulates the DECISION only: no bank, credit or background evidence is invented. A live key, or a batch item, gets a 400.
+                     * @enum {string|null}
+                     */
+                    scenario?: "approve" | "decline" | "review" | null;
                 };
             };
         };
@@ -5295,6 +5310,11 @@ export interface operations {
                         product_slug?: string | null;
                         /** @description WHOLE DOLLARS, never cents: 1 to 2147483647, as a number or a numeric string. OPTIONAL: omit it, or send null, when the merchant named no figure and you want the analysis to size the deal — the case is accepted and `amount` comes back null. Do not send 0 for that; 0 is read as a real request for nothing, by both the model and the auto-approve rules. `amount` is an alias, read only when this field is absent. */
                         requested_amount?: number | string | null;
+                        /**
+                         * @description TEST KEYS ONLY, `POST /v1/underwrite` only. Skips the analysis and records that outcome at once (approve at the requested amount, decline, or route to review), labelled `simulated: true`. Webhooks and the adverse-action letter fire as for a real decision. Simulates the DECISION only: no bank, credit or background evidence is invented. A live key, or a batch item, gets a 400.
+                         * @enum {string|null}
+                         */
+                        scenario?: "approve" | "decline" | "review" | null;
                     }[];
                 };
             };

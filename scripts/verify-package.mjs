@@ -31,6 +31,10 @@ for (const name of ["constructEvent", "verifySignature", "generateSignatureHeade
 const hooksCjs = createRequire(import.meta.url)(resolve(root, "dist/webhooks.cjs"))
 check(names(hooks) === names(hooksCjs), "the ./webhooks ESM and CJS entries export different names")
 
+// npm 11 silently DROPS a bin entry written as "./path" when publishing.
+for (const [name, path] of Object.entries(pkg.bin ?? {})) {
+  check(!String(path).startsWith("./"), `bin "${name}" is "${path}": npm drops "./" bin paths on publish; write "${String(path).slice(2)}"`)
+}
 const cli = resolve(root, "dist/cli.js")
 check((statSync(cli).mode & 0o111) !== 0, "dist/cli.js is not executable")
 check(readFileSync(cli, "utf8").startsWith("#!/usr/bin/env node"), "dist/cli.js has no shebang")

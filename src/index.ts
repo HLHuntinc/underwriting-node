@@ -1,4 +1,4 @@
-export { HLHunt, HLHunt as default } from "./client"
+export { HLHunt } from "./client"
 export { VERSION } from "./version"
 export {
   APIPromise,

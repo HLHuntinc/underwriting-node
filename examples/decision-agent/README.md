@@ -30,4 +30,6 @@ What `integrate.mjs` does:
 
 Terminal 2 shows each `decision.completed` and `letter.issued` webhook, verified. The dashboard's **Decision Agent** page shows the same decisions live.
 
+Policies belong to your whole organization (test **and** live). To try the example without touching a real policy, run it against a scratch product: `EXAMPLE_PRODUCT=integration_test node integrate.mjs`.
+
 Pass `--branding` to `integrate.mjs` to also set the brand name on your letters (it changes your organization's letters).

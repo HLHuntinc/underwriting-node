@@ -18,7 +18,9 @@ if (hlhunt.mode !== "test") {
   process.exit(1)
 }
 const step = (n, title) => console.log(`\n\u001b[1m${n}. ${title}\u001b[0m`)
-const PRODUCT = "business_card"
+// Policies belong to your whole organization (test and live). Point this at a
+// scratch product key to try the example without touching a real policy.
+const PRODUCT = process.env.EXAMPLE_PRODUCT ?? "business_card"
 
 // 3. Branding (only if you pass --branding: it changes your organization's letters)
 if (process.argv.includes("--branding")) {

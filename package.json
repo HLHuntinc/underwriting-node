@@ -1,0 +1,85 @@
+{
+  "name": "@hlhunt/underwriting",
+  "version": "0.1.0",
+  "description": "Official TypeScript/Node SDK for the HL Hunt Underwriting API: underwriting, the Decision Agent, branded decision letters, portfolio and webhooks.",
+  "license": "MIT",
+  "author": "HL Hunt",
+  "homepage": "https://underwriting.hlhunt.org/docs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HLHuntinc/underwriting-node.git"
+  },
+  "bugs": {
+    "url": "https://github.com/HLHuntinc/underwriting-node/issues"
+  },
+  "keywords": [
+    "hlhunt",
+    "underwriting",
+    "credit",
+    "lending",
+    "decision-agent",
+    "adverse-action",
+    "webhooks",
+    "sdk"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./webhooks": {
+      "import": {
+        "types": "./dist/webhooks.d.ts",
+        "default": "./dist/webhooks.js"
+      },
+      "require": {
+        "types": "./dist/webhooks.d.cts",
+        "default": "./dist/webhooks.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "hlhunt": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "build": "rm -rf dist && tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm run test && npm run build && node scripts/verify-package.mjs",
+    "prepublishOnly": "npm run check"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "openapi-typescript": "7.9.1",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

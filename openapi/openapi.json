@@ -123,6 +123,430 @@
         }
       }
     },
+    "application.information_requested": {
+      "post": {
+        "summary": "Available-information analysis needs specific material policy evidence. Includes case_id, application_id, business_id, mode, timestamps, analysis_id and information_requests. Retrieve the current case before changing a notification.",
+        "description": "Available-information analysis needs specific material policy evidence. Includes case_id, application_id, business_id, mode, timestamps, analysis_id and information_requests. Retrieve the current case before changing a notification. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.",
+        "parameters": [
+          {
+            "name": "X-Webhook-Signature",
+            "in": "header",
+            "required": true,
+            "description": "HMAC-SHA256 over \"<timestamp>:<raw body>\", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Id",
+            "in": "header",
+            "required": true,
+            "description": "The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Type",
+            "in": "header",
+            "required": true,
+            "description": "The event type, identical to `type` in the body, readable before the body is parsed.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Id",
+            "in": "header",
+            "required": true,
+            "description": "The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Attempt",
+            "in": "header",
+            "required": true,
+            "description": "Which attempt this is, from 1 to 8.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Unique id for this event, the same on every retry. De-duplicate on it."
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "application.information_requested"
+                  },
+                  "livemode": {
+                    "type": "boolean",
+                    "description": "True for a live-mode event, false for test mode."
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "live",
+                      "test"
+                    ]
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the event occurred, not when this attempt was sent."
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "The resource as the matching read endpoint serializes it."
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "livemode",
+                  "environment",
+                  "created_at",
+                  "data"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "2xx": {
+            "description": "Acknowledged. The delivery is complete."
+          }
+        }
+      }
+    },
+    "application.evidence_received": {
+      "post": {
+        "summary": "Facts or documents were recorded on an existing case. Includes case references, mode, timestamps and the received fact keys or document id. Analysis may still be running.",
+        "description": "Facts or documents were recorded on an existing case. Includes case references, mode, timestamps and the received fact keys or document id. Analysis may still be running. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.",
+        "parameters": [
+          {
+            "name": "X-Webhook-Signature",
+            "in": "header",
+            "required": true,
+            "description": "HMAC-SHA256 over \"<timestamp>:<raw body>\", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Id",
+            "in": "header",
+            "required": true,
+            "description": "The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Type",
+            "in": "header",
+            "required": true,
+            "description": "The event type, identical to `type` in the body, readable before the body is parsed.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Id",
+            "in": "header",
+            "required": true,
+            "description": "The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Attempt",
+            "in": "header",
+            "required": true,
+            "description": "Which attempt this is, from 1 to 8.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Unique id for this event, the same on every retry. De-duplicate on it."
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "application.evidence_received"
+                  },
+                  "livemode": {
+                    "type": "boolean",
+                    "description": "True for a live-mode event, false for test mode."
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "live",
+                      "test"
+                    ]
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the event occurred, not when this attempt was sent."
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "The resource as the matching read endpoint serializes it."
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "livemode",
+                  "environment",
+                  "created_at",
+                  "data"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "2xx": {
+            "description": "Acknowledged. The delivery is complete."
+          }
+        }
+      }
+    },
+    "application.analysis_resumed": {
+      "post": {
+        "summary": "An available-information analysis job started. Includes the stable analysis_id and case references. Retries can repeat this event; retrieve current state.",
+        "description": "An available-information analysis job started. Includes the stable analysis_id and case references. Retries can repeat this event; retrieve current state. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.",
+        "parameters": [
+          {
+            "name": "X-Webhook-Signature",
+            "in": "header",
+            "required": true,
+            "description": "HMAC-SHA256 over \"<timestamp>:<raw body>\", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Id",
+            "in": "header",
+            "required": true,
+            "description": "The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Type",
+            "in": "header",
+            "required": true,
+            "description": "The event type, identical to `type` in the body, readable before the body is parsed.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Id",
+            "in": "header",
+            "required": true,
+            "description": "The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Attempt",
+            "in": "header",
+            "required": true,
+            "description": "Which attempt this is, from 1 to 8.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Unique id for this event, the same on every retry. De-duplicate on it."
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "application.analysis_resumed"
+                  },
+                  "livemode": {
+                    "type": "boolean",
+                    "description": "True for a live-mode event, false for test mode."
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "live",
+                      "test"
+                    ]
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the event occurred, not when this attempt was sent."
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "The resource as the matching read endpoint serializes it."
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "livemode",
+                  "environment",
+                  "created_at",
+                  "data"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "2xx": {
+            "description": "Acknowledged. The delivery is complete."
+          }
+        }
+      }
+    },
+    "application.analysis_completed": {
+      "post": {
+        "summary": "An available-information assessment is ready. It may be preliminary with information requests; this is advisory and does not board a merchant or authorize any financial or communication action.",
+        "description": "An available-information assessment is ready. It may be preliminary with information requests; this is advisory and does not board a merchant or authorize any financial or communication action. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.",
+        "parameters": [
+          {
+            "name": "X-Webhook-Signature",
+            "in": "header",
+            "required": true,
+            "description": "HMAC-SHA256 over \"<timestamp>:<raw body>\", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Id",
+            "in": "header",
+            "required": true,
+            "description": "The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Type",
+            "in": "header",
+            "required": true,
+            "description": "The event type, identical to `type` in the body, readable before the body is parsed.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Id",
+            "in": "header",
+            "required": true,
+            "description": "The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Attempt",
+            "in": "header",
+            "required": true,
+            "description": "Which attempt this is, from 1 to 8.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Unique id for this event, the same on every retry. De-duplicate on it."
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "application.analysis_completed"
+                  },
+                  "livemode": {
+                    "type": "boolean",
+                    "description": "True for a live-mode event, false for test mode."
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "live",
+                      "test"
+                    ]
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the event occurred, not when this attempt was sent."
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "The resource as the matching read endpoint serializes it."
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "livemode",
+                  "environment",
+                  "created_at",
+                  "data"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "2xx": {
+            "description": "Acknowledged. The delivery is complete."
+          }
+        }
+      }
+    },
     "application.decided": {
       "post": {
         "summary": "A binding decision was recorded on a case — approved or declined. The payload is the case summary carrying the new status.",
@@ -970,9 +1394,757 @@
           }
         }
       }
+    },
+    "decision.evidence_received": {
+      "post": {
+        "summary": "Facts or files were received for the same Decision Agent request. Payload is its current decision representation; retrieve current state before updating notifications.",
+        "description": "Facts or files were received for the same Decision Agent request. Payload is its current decision representation; retrieve current state before updating notifications. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.",
+        "parameters": [
+          {
+            "name": "X-Webhook-Signature",
+            "in": "header",
+            "required": true,
+            "description": "HMAC-SHA256 over \"<timestamp>:<raw body>\", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Id",
+            "in": "header",
+            "required": true,
+            "description": "The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Type",
+            "in": "header",
+            "required": true,
+            "description": "The event type, identical to `type` in the body, readable before the body is parsed.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Id",
+            "in": "header",
+            "required": true,
+            "description": "The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Attempt",
+            "in": "header",
+            "required": true,
+            "description": "Which attempt this is, from 1 to 8.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Unique id for this event, the same on every retry. De-duplicate on it."
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "decision.evidence_received"
+                  },
+                  "livemode": {
+                    "type": "boolean",
+                    "description": "True for a live-mode event, false for test mode."
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "live",
+                      "test"
+                    ]
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the event occurred, not when this attempt was sent."
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "The resource as the matching read endpoint serializes it."
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "livemode",
+                  "environment",
+                  "created_at",
+                  "data"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "2xx": {
+            "description": "Acknowledged. The delivery is complete."
+          }
+        }
+      }
+    },
+    "decision.analysis_resumed": {
+      "post": {
+        "summary": "The Decision Agent started analysis of available evidence. Payload is the current request; retries may produce additional starts. Recommendations remain advisory.",
+        "description": "The Decision Agent started analysis of available evidence. Payload is the current request; retries may produce additional starts. Recommendations remain advisory. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.",
+        "parameters": [
+          {
+            "name": "X-Webhook-Signature",
+            "in": "header",
+            "required": true,
+            "description": "HMAC-SHA256 over \"<timestamp>:<raw body>\", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Id",
+            "in": "header",
+            "required": true,
+            "description": "The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Type",
+            "in": "header",
+            "required": true,
+            "description": "The event type, identical to `type` in the body, readable before the body is parsed.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Id",
+            "in": "header",
+            "required": true,
+            "description": "The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Attempt",
+            "in": "header",
+            "required": true,
+            "description": "Which attempt this is, from 1 to 8.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Unique id for this event, the same on every retry. De-duplicate on it."
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "decision.analysis_resumed"
+                  },
+                  "livemode": {
+                    "type": "boolean",
+                    "description": "True for a live-mode event, false for test mode."
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "live",
+                      "test"
+                    ]
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the event occurred, not when this attempt was sent."
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "The resource as the matching read endpoint serializes it."
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "livemode",
+                  "environment",
+                  "created_at",
+                  "data"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "2xx": {
+            "description": "Acknowledged. The delivery is complete."
+          }
+        }
+      }
+    },
+    "decision.evidence_required": {
+      "post": {
+        "summary": "A Decision Agent request is waiting for evidence: documents its policy requires, or the fresh facts a scheduled review needs. The payload is the decision, exactly as `GET /v1/decisions/{id}` returns it, with `status: awaiting_evidence` and `evidence.outstanding` listing each item still to send. Fired when the request starts waiting, and again when a statement has been read, a file turns out to be unusable, or someone on your team attaches a file in the dashboard. An upload made over the API is answered in its own response and is not repeated by webhook. Also fired when the platform opens a scheduled account review (`origin: scheduled_review`).",
+        "description": "A Decision Agent request is waiting for evidence: documents its policy requires, or the fresh facts a scheduled review needs. The payload is the decision, exactly as `GET /v1/decisions/{id}` returns it, with `status: awaiting_evidence` and `evidence.outstanding` listing each item still to send. Fired when the request starts waiting, and again when a statement has been read, a file turns out to be unusable, or someone on your team attaches a file in the dashboard. An upload made over the API is answered in its own response and is not repeated by webhook. Also fired when the platform opens a scheduled account review (`origin: scheduled_review`). Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.",
+        "parameters": [
+          {
+            "name": "X-Webhook-Signature",
+            "in": "header",
+            "required": true,
+            "description": "HMAC-SHA256 over \"<timestamp>:<raw body>\", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Id",
+            "in": "header",
+            "required": true,
+            "description": "The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Type",
+            "in": "header",
+            "required": true,
+            "description": "The event type, identical to `type` in the body, readable before the body is parsed.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Id",
+            "in": "header",
+            "required": true,
+            "description": "The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Attempt",
+            "in": "header",
+            "required": true,
+            "description": "Which attempt this is, from 1 to 8.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Unique id for this event, the same on every retry. De-duplicate on it."
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "decision.evidence_required"
+                  },
+                  "livemode": {
+                    "type": "boolean",
+                    "description": "True for a live-mode event, false for test mode."
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "live",
+                      "test"
+                    ]
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the event occurred, not when this attempt was sent."
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "The resource as the matching read endpoint serializes it."
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "livemode",
+                  "environment",
+                  "created_at",
+                  "data"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "2xx": {
+            "description": "Acknowledged. The delivery is complete."
+          }
+        }
+      }
+    },
+    "account.early_warning": {
+      "post": {
+        "summary": "An account review found something your policy watches for: a trend trigger fired (deposits fell too far, NSFs rose, a payment went past due, vendor payments were missed). The payload names the decision, the customer, the outcome the review reached and each warning with its baseline, current figure and the action your policy takes. Sent in addition to `decision.completed`, for live and test reviews alike, never for a simulated scenario. Route it to collections or account management without reading every completed decision.",
+        "description": "An account review found something your policy watches for: a trend trigger fired (deposits fell too far, NSFs rose, a payment went past due, vendor payments were missed). The payload names the decision, the customer, the outcome the review reached and each warning with its baseline, current figure and the action your policy takes. Sent in addition to `decision.completed`, for live and test reviews alike, never for a simulated scenario. Route it to collections or account management without reading every completed decision. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.",
+        "parameters": [
+          {
+            "name": "X-Webhook-Signature",
+            "in": "header",
+            "required": true,
+            "description": "HMAC-SHA256 over \"<timestamp>:<raw body>\", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Id",
+            "in": "header",
+            "required": true,
+            "description": "The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Event-Type",
+            "in": "header",
+            "required": true,
+            "description": "The event type, identical to `type` in the body, readable before the body is parsed.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Id",
+            "in": "header",
+            "required": true,
+            "description": "The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Webhook-Attempt",
+            "in": "header",
+            "required": true,
+            "description": "Which attempt this is, from 1 to 8.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Unique id for this event, the same on every retry. De-duplicate on it."
+                  },
+                  "type": {
+                    "type": "string",
+                    "const": "account.early_warning"
+                  },
+                  "livemode": {
+                    "type": "boolean",
+                    "description": "True for a live-mode event, false for test mode."
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "live",
+                      "test"
+                    ]
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the event occurred, not when this attempt was sent."
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "The resource as the matching read endpoint serializes it."
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "livemode",
+                  "environment",
+                  "created_at",
+                  "data"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "2xx": {
+            "description": "Acknowledged. The delivery is complete."
+          }
+        }
+      }
     }
   },
   "paths": {
+    "/v1/accounts/{customerId}/signals": {
+      "post": {
+        "operationId": "post_accounts_by_customerId_signals",
+        "tags": [
+          "accounts"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "x-required-scopes": [
+          "decisions:write"
+        ],
+        "x-route-file": "app/api/v1/accounts/[customerId]/signals/route.ts",
+        "summary": "send fresh figures about an account.",
+        "x-rate-limit-per-minute": 120,
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Replays the first response for a repeated request. Reusing a key with a different body is `idempotency_key_reused` (409), never a silent replay."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-schema-source": "zod",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 60,
+                    "description": "The product the account is under. Needed only when this customer has accounts under more than one."
+                  },
+                  "facts": {
+                    "type": "object",
+                    "additionalProperties": {},
+                    "description": "What your system now knows about this account, by the same names as on `POST /v1/decisions`: for example `avg_monthly_deposits`, `nsf_count_90d`, `days_past_due`, or figures from the customer's books such as `missed_vendor_payments_90d` and `payables_overdue`. The current limit is carried over from the last decision; send `current_limit` only to correct it. A figure you leave out is unknown to the review."
+                  },
+                  "note": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 300,
+                    "description": "Why you are sending this, in a few words. Shown on the review."
+                  },
+                  "external_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 100,
+                    "description": "Your reference for this signal."
+                  }
+                },
+                "required": [
+                  "facts"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SerializedDecisionRequest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "error.code is one of: validation_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "error.code is one of: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "error.code is one of: forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "error.code is one of: idempotency_key_reused.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "error.code is one of: rate_limit_exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "error.code is one of: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accounts/performance": {
+      "post": {
+        "operationId": "post_accounts_performance",
+        "tags": [
+          "accounts"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "x-required-scopes": [
+          "decisions:write"
+        ],
+        "x-route-file": "app/api/v1/accounts/performance/route.ts",
+        "summary": "report how your accounts are performing.",
+        "x-rate-limit-per-minute": 120,
+        "requestBody": {
+          "required": true,
+          "x-schema-source": "not-derivable",
+          "description": "The accepted body fields of this operation are NOT derivable from the source: the route validates its body with hand-written checks rather than a zod schema, so this document publishes no field list instead of publishing a guessed one. The refused parameters under `x-refused-parameters` ARE derived and are exact.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "x-derivation": "unmodelled-response",
+                  "description": "This operation does not build its body through a `serialize*` function, so no response schema is derivable from the source and none is published."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "error.code is one of: validation_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "error.code is one of: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "error.code is one of: forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "error.code is one of: rate_limit_exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "error.code is one of: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accounts/vintages": {
+      "get": {
+        "operationId": "get_accounts_vintages",
+        "tags": [
+          "accounts"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "x-required-scopes": [
+          "decisions:read"
+        ],
+        "x-route-file": "app/api/v1/accounts/vintages/route.ts",
+        "summary": "the vintage report.",
+        "x-rate-limit-per-minute": 100,
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "text/csv; charset=utf-8": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "error.code is one of: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "error.code is one of: forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "error.code is one of: rate_limit_exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "error.code is one of: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/applicants": {
       "get": {
         "operationId": "get_applicants",
@@ -3114,6 +4286,7 @@
                       "contract",
                       "id_verification",
                       "financial",
+                      "processing",
                       "insurance",
                       "legal",
                       "other"
@@ -3196,6 +4369,274 @@
           },
           "409": {
             "description": "error.code is one of: conflict, idempotency_key_reused.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "error.code is one of: rate_limit_exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "error.code is one of: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/cases/{id}/facts": {
+      "post": {
+        "operationId": "post_cases_by_id_facts",
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "x-required-scopes": [
+          "cases:write"
+        ],
+        "x-route-file": "app/api/v1/cases/[id]/facts/route.ts",
+        "summary": "add available facts to the SAME application and resume analysis.",
+        "x-rate-limit-per-minute": 100,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Replays the first response for a repeated request. Reusing a key with a different body is `idempotency_key_reused` (409), never a silent replay."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-schema-source": "zod",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "facts": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 2000
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "x-runtime-validation": true
+                  },
+                  "owner": {
+                    "type": "object",
+                    "properties": {
+                      "first_name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Owner's legal first name."
+                      },
+                      "last_name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Owner's legal last name."
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "pattern": "^(\\d{3}-?\\d{2}-?\\d{4}|\\d{4})$",
+                        "description": "The owner's FULL SSN (`123-45-6789` or `123456789`). The soft credit pull (iSoftpull Full JSON Feed) matches on the full 9 digits together with name, home address and date of birth; a last-four-only value is accepted for backward compatibility but is NOT sent to the bureau. The full value is encrypted at rest, sent only to the credit bureau, and never returned by any endpoint; `application_data.ownerSSN` shows only the last four."
+                      },
+                      "date_of_birth": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                        "description": "`YYYY-MM-DD`. Required by most bureaus to resolve an identity."
+                      },
+                      "ownership_percent": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 100,
+                        "description": "0-100. The share of the business this owner holds."
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "Role at the business, e.g. `CEO`."
+                      },
+                      "address": {
+                        "type": "string",
+                        "description": "Home street address."
+                      },
+                      "city": {
+                        "type": "string"
+                      },
+                      "state": {
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 2,
+                        "description": "Two-letter US state code."
+                      },
+                      "postal_code": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "first_name",
+                      "last_name"
+                    ]
+                  },
+                  "consent": {
+                    "type": "object",
+                    "properties": {
+                      "credit_check": {
+                        "type": "boolean",
+                        "description": "True when the applicant authorized a consumer credit report on the owner named in `applicant.owner`. This is the permissible-purpose assertion the bureau pull relies on."
+                      },
+                      "background_check": {
+                        "type": "boolean",
+                        "description": "True when the applicant authorized identity and background verification."
+                      },
+                      "terms": {
+                        "type": "boolean",
+                        "description": "True when the applicant accepted your terms of service."
+                      },
+                      "accuracy": {
+                        "type": "boolean",
+                        "description": "True when the applicant attested that the information supplied is accurate."
+                      },
+                      "agreement_url": {
+                        "type": "string",
+                        "description": "Link to the exact agreement text the applicant accepted. Stored for audit."
+                      },
+                      "accepted_text_version": {
+                        "type": "string",
+                        "description": "Your version identifier for that text, e.g. `esign-v3`. Stored for audit."
+                      }
+                    }
+                  },
+                  "website": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uri",
+                    "maxLength": 2000
+                  },
+                  "requested_amount": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1,
+                    "maximum": 2147483647
+                  },
+                  "evidence_case_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 60
+                    },
+                    "maxItems": 10
+                  }
+                },
+                "additionalProperties": false,
+                "x-runtime-validation": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SerializedEvidenceAccepted"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "error.code is one of: validation_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "error.code is one of: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "error.code is one of: forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "error.code is one of: not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "error.code is one of: idempotency_key_reused.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3376,6 +4817,16 @@
                       }
                     }
                   ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "error.code is one of: validation_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -4340,12 +5791,272 @@
                         "type": "string",
                         "maxLength": 4000,
                         "description": "Your credit policy in words, for the model: risk appetite, what you weigh, what you never do."
+                      },
+                      "limit_sizing": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "properties": {
+                          "basis": {
+                            "type": "string",
+                            "enum": [
+                              "avg_monthly_deposits",
+                              "monthly_revenue",
+                              "monthly_net_cash_flow"
+                            ],
+                            "description": "The monthly figure the limit is sized on: avg_monthly_deposits, monthly_revenue (annual_revenue / 12 when only that is sent) or monthly_net_cash_flow."
+                          },
+                          "pct": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 500,
+                            "description": "The supported limit is this percentage of the basis, e.g. 50 = half a month of deposits."
+                          },
+                          "min_amount": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "minimum": 0,
+                            "description": "Never size below this (when the basis is positive)."
+                          },
+                          "max_amount": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "exclusiveMinimum": 0,
+                            "description": "Never size above this."
+                          },
+                          "round_to": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "exclusiveMinimum": 0,
+                            "description": "Round the supported limit DOWN to a multiple of this, e.g. 100."
+                          },
+                          "reduce_tolerance_pct": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "minimum": 0,
+                            "maximum": 100,
+                            "description": "account_review: the current limit may sit this far above the supported limit before it must be reduced. Default 10."
+                          }
+                        },
+                        "required": [
+                          "basis",
+                          "pct"
+                        ],
+                        "description": "Cash-flow limit sizing: the supported limit is `pct`% of the basis. Approvals above it become a counter at it; an account review whose current limit is above it (beyond the tolerance) is reduced to it. Enforced in code."
+                      },
+                      "triggers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9_-]{1,40}$",
+                              "description": "Stable trigger id, shown in results."
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 120,
+                              "description": "What the trigger watches, in words."
+                            },
+                            "metric": {
+                              "type": "string",
+                              "enum": [
+                                "avg_monthly_deposits",
+                                "monthly_revenue",
+                                "monthly_net_cash_flow",
+                                "nsf_count_90d",
+                                "utilization_pct",
+                                "credit_score",
+                                "days_past_due",
+                                "missed_vendor_payments_90d",
+                                "payables_overdue",
+                                "monthly_net_income"
+                              ],
+                              "description": "The fact watched. Its baseline is `prior_<metric>` (sent by you, else from this customer's history)."
+                            },
+                            "change": {
+                              "type": "string",
+                              "enum": [
+                                "drop_pct",
+                                "rise_pct",
+                                "drop_abs",
+                                "rise_abs",
+                                "at_least",
+                                "at_most"
+                              ],
+                              "description": "drop_pct / rise_pct (percent of the baseline) or drop_abs / rise_abs (in the metric's own units)."
+                            },
+                            "threshold": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "The trigger fires when the change is at least this."
+                            },
+                            "action": {
+                              "type": "string",
+                              "enum": [
+                                "reduce_to_supported",
+                                "refer",
+                                "decline",
+                                "close"
+                              ],
+                              "description": "reduce_to_supported (reduce for account_review, counter otherwise), refer, decline or close. Mapped to the outcomes the decision type allows."
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 60,
+                              "description": "The adverse-action reason code a fired trigger carries (see the reason catalog)."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "label",
+                            "metric",
+                            "change",
+                            "threshold",
+                            "action",
+                            "reason"
+                          ]
+                        },
+                        "maxItems": 20,
+                        "description": "Trend triggers: compare a metric with its baseline (`prior_<metric>`) and act when it moves too far. Enforced in code."
+                      },
+                      "required_documents": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9_-]{1,40}$",
+                              "description": "Stable requirement id, shown in results."
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "bank_statements",
+                                "card_statements",
+                                "financial_statements",
+                                "tax_return",
+                                "other"
+                              ],
+                              "description": "bank_statements are read and checked month by month. Every other kind is checked for presence only."
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 120,
+                              "description": "What you are asking for, in words. Shown to your team and returned in the API."
+                            },
+                            "months": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 1,
+                              "maximum": 24,
+                              "description": "bank_statements: how many of the most recent consecutive months must be covered. Default 3."
+                            },
+                            "min_files": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 1,
+                              "maximum": 24,
+                              "description": "Other kinds: how many files of this kind are needed. Default 1."
+                            },
+                            "when_amount_at_least": {
+                              "type": [
+                                "number",
+                                "null"
+                              ],
+                              "exclusiveMinimum": 0,
+                              "description": "Only require this when the requested amount is at least this much. Omit to always require it."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "kind",
+                            "label"
+                          ]
+                        },
+                        "maxItems": 10,
+                        "description": "Documents a request needs before it is decided. While any is outstanding the request waits at `awaiting_evidence` and the response lists exactly what is missing. Bank statements are read and checked month by month; other kinds are checked for presence."
+                      },
+                      "evidence_wait_days": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 60,
+                        "description": "How long a request waits for its documents before it is referred to a person. Default 14."
+                      },
+                      "increase": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "properties": {
+                          "min_months_on_book": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 240,
+                            "description": "The account must have been open at least this many months. Default 3 (the 'day 90' rule)."
+                          },
+                          "min_months_since_limit_change": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 240,
+                            "description": "Months since the limit last changed before it may be raised again. Default 3."
+                          },
+                          "min_headroom_pct": {
+                            "type": "number",
+                            "minimum": 1,
+                            "maximum": 500,
+                            "description": "Recommend an increase only when the supported limit is at least this percentage above the current limit. Default 20."
+                          },
+                          "max_increase_pct": {
+                            "type": "number",
+                            "exclusiveMinimum": 0,
+                            "maximum": 500,
+                            "description": "The most one increase may add, as a percentage of the current limit. Default 50."
+                          }
+                        },
+                        "description": "account_review only: let a review recommend a higher limit when the account has earned one. Needs `limit_sizing`. Decided in code, never by the model."
+                      },
+                      "monitoring": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "properties": {
+                          "review_every_days": {
+                            "type": "integer",
+                            "minimum": 7,
+                            "maximum": 730,
+                            "description": "Open an account review for a customer when this many days have passed since their last decision."
+                          }
+                        },
+                        "required": [
+                          "review_every_days"
+                        ],
+                        "description": "account_review only: open a review for each customer on a schedule, without your system asking. The review waits at `awaiting_evidence` for fresh facts or documents."
                       }
                     },
                     "required": [
                       "knockouts"
                     ],
-                    "description": "Knock-outs, caps, required facts, the refer threshold and your credit policy in words."
+                    "description": "Knock-outs, caps, cash-flow limit sizing, trend triggers, required facts, the refer threshold and your credit policy in words."
                   }
                 },
                 "required": [
@@ -4439,7 +6150,6 @@
           "decisions:read"
         ],
         "x-route-file": "app/api/v1/decisions/route.ts",
-        "summary": "your requests, newest first.",
         "x-rate-limit-per-minute": 100,
         "parameters": [
           {
@@ -4605,7 +6315,6 @@
           "decisions:write"
         ],
         "x-route-file": "app/api/v1/decisions/route.ts",
-        "summary": "ask the Decision Agent to decide a credit request.",
         "x-rate-limit-per-minute": 120,
         "parameters": [
           {
@@ -4633,7 +6342,7 @@
                       "limit_change",
                       "account_review"
                     ],
-                    "description": "new_credit (approve / counter / decline / refer), limit_change (same, `requested_amount` is the NEW limit), account_review (keep / reduce / close / refer)."
+                    "description": "new_credit (approve / counter / decline / refer), limit_change (same, `requested_amount` is the NEW limit), account_review (keep / increase / reduce / close / refer)."
                   },
                   "product": {
                     "type": "string",
@@ -4679,6 +6388,10 @@
                             "type": "string",
                             "maxLength": 200
                           },
+                          "line2": {
+                            "type": "string",
+                            "maxLength": 200
+                          },
                           "city": {
                             "type": "string",
                             "maxLength": 100
@@ -4690,8 +6403,111 @@
                           "zip": {
                             "type": "string",
                             "maxLength": 20
+                          },
+                          "country": {
+                            "type": "string",
+                            "maxLength": 60
                           }
                         }
+                      },
+                      "legal_name": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "maxLength": 200,
+                        "description": "Registered legal name, when it differs from `name`."
+                      },
+                      "dba": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "maxLength": 200,
+                        "description": "Doing-business-as name."
+                      },
+                      "entity_type": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "maxLength": 60,
+                        "description": "LLC, corporation, sole proprietorship, ..."
+                      },
+                      "ein": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "maxLength": 20,
+                        "description": "Employer Identification Number. Only the last four digits are stored and shown."
+                      },
+                      "industry": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "maxLength": 200
+                      },
+                      "phone": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "maxLength": 40
+                      },
+                      "website": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "maxLength": 200
+                      },
+                      "owner": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "maxLength": 200
+                          },
+                          "title": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "maxLength": 100
+                          },
+                          "ownership_pct": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "email": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "email",
+                            "maxLength": 200
+                          },
+                          "phone": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "maxLength": 40
+                          }
+                        },
+                        "description": "The principal owner or guarantor."
                       }
                     },
                     "required": [
@@ -4699,10 +6515,20 @@
                     ],
                     "description": "Who is applying."
                   },
+                  "business_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Stable business identity. Use distinct ids for businesses sharing an owner or email."
+                  },
+                  "auto_match_email": {
+                    "type": "boolean",
+                    "description": "Default false. Enable only for legacy single-business owners; explicit case_id is preferred."
+                  },
                   "facts": {
                     "type": "object",
                     "additionalProperties": {},
-                    "description": "Everything your system knows, under your own names: `credit_score`, `annual_revenue`, `time_in_business_months`, `nsf_count_90d`, `current_limit`, `requested_amount`, ... Common aliases are recognised (FICO, revenue, months_in_business); one level of nesting is flattened; anything else reaches the agent as-is."
+                    "description": "Everything your system knows, under your own names: `credit_score`, `annual_revenue`, `avg_monthly_deposits`, `time_in_business_months`, `nsf_count_90d`, `current_limit`, `requested_amount`, ... Common aliases are recognised (FICO, revenue, months_in_business); one level of nesting is flattened; anything else reaches the agent as-is. Baselines for trend triggers are `prior_<metric>` (e.g. `prior_avg_monthly_deposits` at approval); without them the agent uses this customer's earlier requests and onboarding case."
                   },
                   "partner_verdict": {
                     "type": [
@@ -4754,8 +6580,7 @@
                 "required": [
                   "decision_type",
                   "product",
-                  "applicant",
-                  "facts"
+                  "applicant"
                 ],
                 "additionalProperties": false
               }
@@ -4803,8 +6628,18 @@
               }
             }
           },
+          "404": {
+            "description": "error.code is one of: not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "409": {
-            "description": "error.code is one of: idempotency_key_reused.",
+            "description": "error.code is one of: conflict, idempotency_key_reused.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4927,6 +6762,367 @@
         }
       }
     },
+    "/v1/decisions/{id}/documents": {
+      "get": {
+        "operationId": "get_decisions_by_id_documents",
+        "tags": [
+          "decisions"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "x-required-scopes": [
+          "decisions:read"
+        ],
+        "x-route-file": "app/api/v1/decisions/[id]/documents/route.ts",
+        "x-rate-limit-per-minute": 300,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SerializedDecisionDocument"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "error.code is one of: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "error.code is one of: forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "error.code is one of: not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "error.code is one of: rate_limit_exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "error.code is one of: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_decisions_by_id_documents",
+        "tags": [
+          "decisions"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "x-required-scopes": [
+          "decisions:write"
+        ],
+        "x-route-file": "app/api/v1/decisions/[id]/documents/route.ts",
+        "x-rate-limit-per-minute": 50,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Replays the first response for a repeated request. Reusing a key with a different body is `idempotency_key_reused` (409), never a silent replay."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-schema-source": "not-derivable",
+          "description": "Multipart upload. The accepted body fields of this operation are NOT derivable from the source: the route validates its body with hand-written checks rather than a zod schema, so this document publishes no field list instead of publishing a guessed one. The refused parameters under `x-refused-parameters` ARE derived and are exact.",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SerializedDecisionRequest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "error.code is one of: validation_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "error.code is one of: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "error.code is one of: forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "error.code is one of: not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "error.code is one of: conflict, idempotency_key_reused.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "error.code is one of: rate_limit_exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "error.code is one of: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/decisions/{id}/facts": {
+      "post": {
+        "operationId": "post_decisions_by_id_facts",
+        "tags": [
+          "decisions"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "x-required-scopes": [
+          "decisions:write"
+        ],
+        "x-route-file": "app/api/v1/decisions/[id]/facts/route.ts",
+        "summary": "send facts a waiting decision needs.",
+        "x-rate-limit-per-minute": 120,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Replays the first response for a repeated request. Reusing a key with a different body is `idempotency_key_reused` (409), never a silent replay."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-schema-source": "zod",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "facts": {
+                    "type": "object",
+                    "additionalProperties": {},
+                    "description": "Facts for a decision that is waiting at `awaiting_evidence`, by the same names as on `POST /v1/decisions`. A fact sent again replaces the earlier value. For a scheduled review, send the ones listed under `evidence.facts_needed`."
+                  }
+                },
+                "required": [
+                  "facts"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SerializedDecisionRequest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "error.code is one of: validation_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "error.code is one of: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "error.code is one of: forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "error.code is one of: not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "error.code is one of: conflict, idempotency_key_reused.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "error.code is one of: rate_limit_exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "error.code is one of: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/decisions/{id}/outcome": {
       "post": {
         "operationId": "post_decisions_by_id_outcome",
@@ -4978,6 +7174,7 @@
                       "counter",
                       "decline",
                       "keep",
+                      "increase",
                       "reduce",
                       "close"
                     ],
@@ -4989,7 +7186,7 @@
                       "null"
                     ],
                     "exclusiveMinimum": 0,
-                    "description": "The amount or limit you granted, for approve / counter / reduce."
+                    "description": "The amount or limit you granted, for approve / counter / increase / reduce."
                   },
                   "note": {
                     "type": [
@@ -5061,6 +7258,88 @@
           },
           "409": {
             "description": "error.code is one of: idempotency_key_reused.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "error.code is one of: rate_limit_exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "error.code is one of: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/decisions/export": {
+      "get": {
+        "operationId": "get_decisions_export",
+        "tags": [
+          "decisions"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "x-required-scopes": [
+          "decisions:read"
+        ],
+        "x-route-file": "app/api/v1/decisions/export/route.ts",
+        "summary": "every decision in a date range as CSV, one row each, for a risk team's own tools.",
+        "x-rate-limit-per-minute": 100,
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "text/csv; charset=utf-8": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "error.code is one of: validation_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "error.code is one of: unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "error.code is one of: forbidden.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5433,6 +7712,65 @@
           },
           "404": {
             "description": "error.code is one of: not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "error.code is one of: rate_limit_exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "error.code is one of: internal_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "get_me",
+        "tags": [
+          "me"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "x-required-scopes": [],
+        "x-route-file": "app/api/v1/me/route.ts",
+        "summary": "the calling API key and its organization: the key's mode and scopes, and whether the organization's business verification lets it underwrite. Any valid key may call it; no scope is required. Use it to check a key before integrating, and read `organization.can_underwrite` before the first POST /v1/underwrite.",
+        "x-rate-limit-per-minute": 200,
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SerializedMe"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "error.code is one of: unauthorized.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6174,7 +8512,7 @@
           "underwrite:write"
         ],
         "x-route-file": "app/api/v1/underwrite/route.ts",
-        "summary": "submit an application for underwriting. Your organization must have an APPROVED business verification. Until it does, every submission is refused with 403 `forbidden` and no case is created; the message says whether a verification has never been submitted or was rejected, because the remedy differs. Verification is submitted and reviewed outside the API — ask your HL Hunt contact if you are unsure of your organization's status.",
+        "summary": "submit an application for underwriting. Your organization must have an APPROVED business verification. Until it does, every submission is refused with 403 `forbidden` and no case is created; the message says whether a verification has never been submitted or was rejected, because the remedy differs. Verification is submitted and reviewed outside the API; to check before submitting, read `organization.can_underwrite` from GET /v1/me.",
         "x-rate-limit-per-minute": 100,
         "parameters": [
           {
@@ -6271,7 +8609,7 @@
                           "ssn": {
                             "type": "string",
                             "pattern": "^(\\d{3}-?\\d{2}-?\\d{4}|\\d{4})$",
-                            "description": "Full SSN (`123-45-6789` or `123456789`) or just the last four. THE FULL VALUE IS NEVER STORED: it is reduced to the last four at the request boundary and the remainder is discarded, because the bureau integration identifies on last-four plus name, date of birth and address. Never returned by any endpoint."
+                            "description": "The owner's FULL SSN (`123-45-6789` or `123456789`). The soft credit pull (iSoftpull Full JSON Feed) matches on the full 9 digits together with name, home address and date of birth; a last-four-only value is accepted for backward compatibility but is NOT sent to the bureau. The full value is encrypted at rest, sent only to the credit bureau, and never returned by any endpoint; `application_data.ownerSSN` shows only the last four."
                           },
                           "date_of_birth": {
                             "type": "string",
@@ -6279,7 +8617,10 @@
                             "description": "`YYYY-MM-DD`. Required by most bureaus to resolve an identity."
                           },
                           "ownership_percent": {
-                            "type": "number",
+                            "type": [
+                              "number",
+                              "null"
+                            ],
                             "minimum": 0,
                             "maximum": 100,
                             "description": "0-100. The share of the business this owner holds."
@@ -6309,12 +8650,63 @@
                           "first_name",
                           "last_name"
                         ],
-                        "description": "The primary owner or personal guarantor. Typed because credit and background checks run against these values — do not put them in `application_data`. `ssn` is encrypted at rest and never returned."
+                        "description": "The primary owner or personal guarantor. Typed because credit and background checks run against these values — do not put them in `application_data`. The soft credit pull matches on the full `ssn`, name, home address and date of birth; `ssn` is encrypted at rest and never returned."
                       }
                     },
                     "required": [
                       "email"
                     ]
+                  },
+                  "business_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Stable identity of this business, not the owner email. Required when reusing cases that have a business_id."
+                  },
+                  "website": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uri",
+                    "maxLength": 2000
+                  },
+                  "facts": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 2000
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "x-runtime-validation": true,
+                    "description": "Available merchant-reported facts. Omitted and null values remain unknown. Processing volume is distinct from revenue."
+                  },
+                  "evidence_case_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 60
+                    },
+                    "maxItems": 10,
+                    "description": "Explicit cases of this same business and key mode whose documents may be reused. No email matching."
+                  },
+                  "auto_match_email": {
+                    "type": "boolean",
+                    "const": false,
+                    "description": "Normal underwriting never reuses evidence by email. Only false is accepted."
                   },
                   "metadata": {
                     "type": [
@@ -6422,13 +8814,6 @@
                       "product"
                     ],
                     "note": "Send one of these. `product_slug` is the canonical spelling; `product` is accepted as an alias and is ignored when `product_slug` is present."
-                  },
-                  {
-                    "fields": [
-                      "requested_amount",
-                      "amount"
-                    ],
-                    "note": "Send one of these, in whole dollars. `requested_amount` is the canonical spelling; `amount` is accepted as an alias and is ignored when `requested_amount` is present."
                   },
                   {
                     "fields": [
@@ -6642,7 +9027,7 @@
                                 "ssn": {
                                   "type": "string",
                                   "pattern": "^(\\d{3}-?\\d{2}-?\\d{4}|\\d{4})$",
-                                  "description": "Full SSN (`123-45-6789` or `123456789`) or just the last four. THE FULL VALUE IS NEVER STORED: it is reduced to the last four at the request boundary and the remainder is discarded, because the bureau integration identifies on last-four plus name, date of birth and address. Never returned by any endpoint."
+                                  "description": "The owner's FULL SSN (`123-45-6789` or `123456789`). The soft credit pull (iSoftpull Full JSON Feed) matches on the full 9 digits together with name, home address and date of birth; a last-four-only value is accepted for backward compatibility but is NOT sent to the bureau. The full value is encrypted at rest, sent only to the credit bureau, and never returned by any endpoint; `application_data.ownerSSN` shows only the last four."
                                 },
                                 "date_of_birth": {
                                   "type": "string",
@@ -6650,7 +9035,10 @@
                                   "description": "`YYYY-MM-DD`. Required by most bureaus to resolve an identity."
                                 },
                                 "ownership_percent": {
-                                  "type": "number",
+                                  "type": [
+                                    "number",
+                                    "null"
+                                  ],
                                   "minimum": 0,
                                   "maximum": 100,
                                   "description": "0-100. The share of the business this owner holds."
@@ -6680,12 +9068,63 @@
                                 "first_name",
                                 "last_name"
                               ],
-                              "description": "The primary owner or personal guarantor. Typed because credit and background checks run against these values — do not put them in `application_data`. `ssn` is encrypted at rest and never returned."
+                              "description": "The primary owner or personal guarantor. Typed because credit and background checks run against these values — do not put them in `application_data`. The soft credit pull matches on the full `ssn`, name, home address and date of birth; `ssn` is encrypted at rest and never returned."
                             }
                           },
                           "required": [
                             "email"
                           ]
+                        },
+                        "business_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100,
+                          "description": "Stable identity of this business, not the owner email. Required when reusing cases that have a business_id."
+                        },
+                        "website": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uri",
+                          "maxLength": 2000
+                        },
+                        "facts": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "maxLength": 2000
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "x-runtime-validation": true,
+                          "description": "Available merchant-reported facts. Omitted and null values remain unknown. Processing volume is distinct from revenue."
+                        },
+                        "evidence_case_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 60
+                          },
+                          "maxItems": 10,
+                          "description": "Explicit cases of this same business and key mode whose documents may be reused. No email matching."
+                        },
+                        "auto_match_email": {
+                          "type": "boolean",
+                          "const": false,
+                          "description": "Normal underwriting never reuses evidence by email. Only false is accepted."
                         },
                         "metadata": {
                           "type": [
@@ -6793,13 +9232,6 @@
                             "product"
                           ],
                           "note": "Send one of these. `product_slug` is the canonical spelling; `product` is accepted as an alias and is ignored when `product_slug` is present."
-                        },
-                        {
-                          "fields": [
-                            "requested_amount",
-                            "amount"
-                          ],
-                          "note": "Send one of these, in whole dollars. `requested_amount` is the canonical spelling; `amount` is accepted as an alias and is ignored when `requested_amount` is present."
                         },
                         {
                           "fields": [
@@ -7181,6 +9613,10 @@
                       "type": "string",
                       "enum": [
                         "application.received",
+                        "application.information_requested",
+                        "application.evidence_received",
+                        "application.analysis_resumed",
+                        "application.analysis_completed",
                         "application.decided",
                         "application.needs_review",
                         "application.analysis_failed",
@@ -7188,7 +9624,11 @@
                         "document.analyzed",
                         "bank_link.connected",
                         "letter.issued",
-                        "decision.completed"
+                        "decision.completed",
+                        "decision.evidence_received",
+                        "decision.analysis_resumed",
+                        "decision.evidence_required",
+                        "account.early_warning"
                       ]
                     },
                     "minItems": 1,
@@ -7414,7 +9854,7 @@
       "apiKey": {
         "type": "http",
         "scheme": "bearer",
-        "description": "API key, sent as `Authorization: Bearer <key>`. Every operation additionally requires a scope from its `x-required-scopes`, which is what the route passes to `requireApiKey`. Where that list has more than one entry, ANY ONE of them authorizes the call — they are alternatives, not requirements. Scopes are not expressed in `security` because OpenAPI only carries scopes for oauth2 and openIdConnect schemes. Key scope vocabulary: products:read, underwrite:write, cases:read, cases:write, cases:decide, bank_link:write, documents:read, documents:write, portfolio:read, portfolio:write, collections:read, collections:write, applicants:read, applicants:write, webhooks:manage, branding:manage, decisions:read, decisions:write, decision_policies:manage."
+        "description": "API key, sent as `Authorization: Bearer <key>`. Every operation additionally requires a scope from its `x-required-scopes`, which is what the route passes to `requireApiKey`. Where that list has more than one entry, ANY ONE of them authorizes the call — they are alternatives, not requirements. Where it is empty (`GET /v1/me`), any valid key may call the operation. Scopes are not expressed in `security` because OpenAPI only carries scopes for oauth2 and openIdConnect schemes. Key scope vocabulary: products:read, underwrite:write, cases:read, cases:write, cases:decide, bank_link:write, documents:read, documents:write, portfolio:read, portfolio:write, collections:read, collections:write, applicants:read, applicants:write, webhooks:manage, branding:manage, decisions:read, decisions:write, decision_policies:manage."
       }
     },
     "schemas": {
@@ -7462,6 +9902,476 @@
             }
           }
         }
+      },
+      "AvailableAssessment": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1"
+          },
+          "case_id": {
+            "type": "string"
+          },
+          "business_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "mode": {
+            "type": "string"
+          },
+          "analysis_id": {
+            "type": "string"
+          },
+          "assessed_at": {
+            "type": "string"
+          },
+          "advisory": {
+            "type": "boolean",
+            "const": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "preliminary",
+              "supported"
+            ]
+          },
+          "recommendation": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "supporting_factors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "adverse_factors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "policy": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "version": {
+                "type": "number"
+              },
+              "checks": {
+                "type": "array",
+                "items": {
+                  "x-derivation": "unmodelled-type",
+                  "x-source-type": "unknown"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "version",
+              "checks"
+            ]
+          },
+          "evidence_sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "provenance": {
+                  "type": "string",
+                  "enum": [
+                    "verified",
+                    "merchant_reported",
+                    "extracted",
+                    "inferred"
+                  ]
+                }
+              },
+              "required": [
+                "type",
+                "id",
+                "provenance"
+              ]
+            }
+          },
+          "facts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "provenance": {
+                  "type": "string",
+                  "enum": [
+                    "merchant_reported",
+                    "extracted"
+                  ]
+                },
+                "source_id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "key",
+                "value",
+                "provenance",
+                "source_id"
+              ]
+            }
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "completed",
+                    "unavailable",
+                    "not_authorized",
+                    "missing_data"
+                  ]
+                },
+                "detail": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "status",
+                "detail"
+              ]
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "unresolved_gaps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "information_requests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InformationRequest"
+            }
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "next_actions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "schema_version",
+          "case_id",
+          "business_id",
+          "mode",
+          "analysis_id",
+          "assessed_at",
+          "advisory",
+          "status",
+          "recommendation",
+          "rationale",
+          "supporting_factors",
+          "adverse_factors",
+          "policy",
+          "evidence_sources",
+          "facts",
+          "checks",
+          "limitations",
+          "unresolved_gaps",
+          "information_requests",
+          "conditions",
+          "next_actions"
+        ]
+      },
+      "DepositBreakdownSummary": {
+        "type": "object",
+        "properties": {
+          "months_classified": {
+            "type": "number",
+            "description": "Statements that carried a breakdown, out of `statements_read`."
+          },
+          "statements_read": {
+            "type": "number"
+          },
+          "monthly_average": {
+            "type": "object",
+            "description": "Monthly average per category, in dollars."
+          },
+          "qualifying_monthly_revenue": {
+            "type": "number",
+            "description": "Monthly average of the deposits that count as income."
+          },
+          "qualifying_basis": {
+            "type": "array",
+            "items": {
+              "x-derivation": "unmodelled-type",
+              "x-source-type": "(typeof DEPOSIT_CATEGORIES)[number]"
+            },
+            "description": "Which categories qualifying revenue is made of."
+          },
+          "excluded_monthly": {
+            "type": "number",
+            "description": "Monthly average of transfers, loan proceeds and refunds: never income."
+          },
+          "unproven_monthly": {
+            "type": "number",
+            "description": "Monthly average of cash and unclassified deposits: not proven either way."
+          },
+          "unreconciled_monthly": {
+            "type": "number",
+            "description": "Monthly average of the gap between the categories and the statement's total\ndeposits, already folded into `other_unclassified`. Non-zero means the\nclassification did not fully account for the deposits."
+          }
+        },
+        "required": [
+          "months_classified",
+          "statements_read",
+          "monthly_average",
+          "qualifying_monthly_revenue",
+          "qualifying_basis",
+          "excluded_monthly",
+          "unproven_monthly",
+          "unreconciled_monthly"
+        ]
+      },
+      "InformationRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "fact",
+              "document"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "affected_check": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "accepted_formats": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "due_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "next_action": {
+            "type": "object",
+            "properties": {
+              "method": {
+                "type": "string",
+                "const": "POST"
+              },
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "method",
+              "path"
+            ]
+          },
+          "month": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "document_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "unreadable_files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "document_id": {
+                  "type": "string"
+                },
+                "file_name": {
+                  "type": "string"
+                },
+                "problem": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "document_id",
+                "file_name",
+                "problem"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "key",
+          "label",
+          "reason",
+          "affected_check",
+          "required",
+          "accepted_formats",
+          "due_at",
+          "next_action",
+          "month",
+          "document_id",
+          "unreadable_files"
+        ]
+      },
+      "ProcessingEvidence": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string"
+          },
+          "file_name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "extracted",
+              "unreadable",
+              "unavailable"
+            ]
+          },
+          "read_at": {
+            "type": "string"
+          },
+          "period": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "merchant_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "facts": {
+            "type": "object"
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "quote": {
+                  "type": "string"
+                },
+                "page": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "quote",
+                "page"
+              ]
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "document_id",
+          "file_name",
+          "status",
+          "read_at",
+          "period",
+          "merchant_name",
+          "facts",
+          "citations",
+          "limitations"
+        ]
       },
       "SerializedAmortizationRow": {
         "type": "object",
@@ -8096,6 +11006,32 @@
       "SerializedCaseDetail": {
         "type": "object",
         "properties": {
+          "processing_evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProcessingEvidence"
+            }
+          },
+          "website_research": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/WebsiteResearch"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "available_assessment": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableAssessment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "id": {
             "type": "string"
           },
@@ -8114,8 +11050,7 @@
             "description": "Where the application is right now, in plain words — read this, not a\nstage you stored at submission time. `message` is written to be shown to a\nperson as-is; `next_step` says who must act (`upload_statements`, `wait`,\n`retry`, `decide`, `none`). Absent only if progress could not be loaded."
           },
           "assessment": {
-            "x-derivation": "unmodelled-type",
-            "x-source-type": "UnderwritingAssessment",
+            "$ref": "#/components/schemas/UnderwritingAssessment",
             "description": "Document integrity, evidence sufficiency and creditworthiness, kept apart:\na decline for forged statements is not a finding that the borrower cannot\nrepay. Absent only if it could not be computed."
           },
           "product": {
@@ -8332,8 +11267,7 @@
               "statement_months": {
                 "type": "array",
                 "items": {
-                  "x-derivation": "unmodelled-type",
-                  "x-source-type": "StatementMonthlyRow"
+                  "$ref": "#/components/schemas/StatementMonthlyRow"
                 }
               },
               "connected": {
@@ -8342,8 +11276,7 @@
               "deposit_breakdown": {
                 "oneOf": [
                   {
-                    "x-derivation": "unmodelled-type",
-                    "x-source-type": "DepositBreakdownSummary"
+                    "$ref": "#/components/schemas/DepositBreakdownSummary"
                   },
                   {
                     "type": "null"
@@ -9003,6 +11936,338 @@
           "updated_at"
         ]
       },
+      "SerializedDecisionDocument": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "object": {
+            "type": "string",
+            "const": "decision_document"
+          },
+          "kind": {
+            "type": "string",
+            "description": "bank_statements, card_statements, financial_statements, tax_return or other."
+          },
+          "file_name": {
+            "type": "string"
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "size_bytes": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "description": "`uploaded` or `reading` while a bank statement is being read; `read` once it counts; `unreadable` with `problem` when it cannot be used. Kinds other than bank_statements are `read` on arrival: they are kept and counted, not read."
+          },
+          "problem": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Why the file cannot be used, in words you can show your customer. Null otherwise."
+          },
+          "period": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "bank_statements: the period as printed on the statement, and the month it was placed in (\"YYYY-MM\")."
+          },
+          "month": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "uploaded_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "read_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "object",
+          "kind",
+          "file_name",
+          "content_type",
+          "size_bytes",
+          "status",
+          "problem",
+          "period",
+          "month",
+          "uploaded_at",
+          "read_at"
+        ]
+      },
+      "SerializedDecisionEvidence": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "`incomplete`: something is outstanding. `pending`: nothing more is known to be missing and at least one file is still being read. `complete`: nothing more is needed. `not_required`: the policy asks for no documents."
+          },
+          "outstanding": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Every item still to send, one per line, ready to show: \"Bank statement for October 2026\", \"Current average monthly deposits\". The fact names behind the second kind are in `facts_needed`."
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "description": "satisfied, missing, incomplete, unreadable, pending or not_required."
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "months_required": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "bank_statements: the months required, covered and missing, oldest first (\"YYYY-MM\")."
+                },
+                "months_covered": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "months_missing": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "files_required": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "description": "Other kinds: files needed and received."
+                },
+                "files_received": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "problems": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "document_id": {
+                        "type": "string"
+                      },
+                      "file_name": {
+                        "type": "string"
+                      },
+                      "problem": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "document_id",
+                      "file_name",
+                      "problem"
+                    ]
+                  },
+                  "description": "Files received for this requirement that could not be used, each with the reason."
+                },
+                "outstanding": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "label",
+                "status",
+                "detail",
+                "months_required",
+                "months_covered",
+                "months_missing",
+                "files_required",
+                "files_received",
+                "problems",
+                "outstanding"
+              ]
+            },
+            "description": "One entry per document requirement in the policy."
+          },
+          "facts_needed": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "fact": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "fact",
+                "label"
+              ]
+            },
+            "description": "Facts still to send to `POST /v1/decisions/{id}/facts`: for a scheduled review, every fact its policy reads; otherwise the required facts the request left out. A fact the requested bank statements will prove is not listed."
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SerializedDecisionDocument"
+            },
+            "description": "The documents sent with this request."
+          },
+          "verified": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "statements_read": {
+                    "type": "number"
+                  },
+                  "months": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "avg_monthly_deposits": {
+                    "type": "number"
+                  },
+                  "monthly_net_cash_flow": {
+                    "type": "number"
+                  },
+                  "nsf_count": {
+                    "type": "number"
+                  },
+                  "current_balance": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "deposit_trend_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "qualifying_monthly_revenue": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "Deposits that name a payer, and deposits that do not. Null when the statements were not classified."
+                  },
+                  "unproven_monthly_deposits": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "integrity_verdict": {
+                    "type": "string",
+                    "description": "Authentic, Unverified, Suspicious, Altered or Fake. Altered or Fake refers the request to a person."
+                  },
+                  "integrity_score": {
+                    "type": "number"
+                  },
+                  "integrity_flags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "statements_read",
+                  "months",
+                  "avg_monthly_deposits",
+                  "monthly_net_cash_flow",
+                  "nsf_count",
+                  "current_balance",
+                  "deposit_trend_pct",
+                  "qualifying_monthly_revenue",
+                  "unproven_monthly_deposits",
+                  "integrity_verdict",
+                  "integrity_score",
+                  "integrity_flags"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What this request's own bank statements show, computed in code. Null until one is read. Whole dollars."
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Where a figure proven by the statements replaced one your system sent."
+          },
+          "due_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "When the wait runs out and the request is referred. Null once the evidence is complete."
+          },
+          "completed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "When everything the policy needed was on file. Null while waiting, and for a request whose wait ran out."
+          }
+        },
+        "required": [
+          "status",
+          "outstanding",
+          "requirements",
+          "facts_needed",
+          "documents",
+          "verified",
+          "notes",
+          "due_at",
+          "completed_at"
+        ]
+      },
       "SerializedDecisionLetter": {
         "type": "object",
         "properties": {
@@ -9080,6 +12345,66 @@
       "SerializedDecisionRequest": {
         "type": "object",
         "properties": {
+          "website_research": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/WebsiteResearch"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "advisory": {
+            "type": "boolean",
+            "const": true
+          },
+          "assessment_status": {
+            "type": "string",
+            "enum": [
+              "preliminary",
+              "supported"
+            ]
+          },
+          "information_requests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InformationRequest"
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "fact_provenance": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "provenance": {
+                  "type": "string",
+                  "enum": [
+                    "merchant_reported",
+                    "extracted",
+                    "inferred"
+                  ]
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "key",
+                "provenance",
+                "source"
+              ]
+            }
+          },
           "id": {
             "type": "string"
           },
@@ -9089,7 +12414,18 @@
           },
           "status": {
             "type": "string",
-            "description": "`queued` or `deciding` while the agent works; `decided` or `failed` when done."
+            "description": "`awaiting_evidence` while documents or facts the policy needs are outstanding (see `evidence`); `queued` or `deciding` while the agent works; `decided` or `failed` when done."
+          },
+          "origin": {
+            "type": "string",
+            "description": "`api`: your system sent it. `scheduled_review`: opened by the platform because the policy's `monitoring` schedule came due."
+          },
+          "origin_reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Why a scheduled review was opened, e.g. \"92 days since the last decision\". Null for `api`."
           },
           "simulated": {
             "type": "boolean",
@@ -9148,7 +12484,7 @@
                 "properties": {
                   "outcome": {
                     "type": "string",
-                    "description": "approve, counter, decline or refer (new_credit, limit_change); keep, reduce, close or refer (account_review)."
+                    "description": "approve, counter, decline or refer (new_credit, limit_change); keep, increase, reduce, close or refer (account_review)."
                   },
                   "amount": {
                     "type": [
@@ -9308,6 +12644,121 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "supported_limit": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "The limit the applicant's current cash flow supports, when the policy sizes limits (`limit_sizing`); null otherwise."
+                  },
+                  "supported_limit_explanation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The supported limit's math in one sentence, e.g. \"Supported limit is 50% of average monthly deposits of $7,000 = $3,500\"."
+                  },
+                  "triggers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "result": {
+                          "type": "string"
+                        },
+                        "metric": {
+                          "type": "string"
+                        },
+                        "baseline": {
+                          "type": [
+                            "number",
+                            "null"
+                          ]
+                        },
+                        "current": {
+                          "type": [
+                            "number",
+                            "null"
+                          ]
+                        },
+                        "action": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "label",
+                        "result",
+                        "metric",
+                        "baseline",
+                        "current",
+                        "action"
+                      ]
+                    },
+                    "description": "Every trend trigger: `fired`, `not_fired` or `skipped` (no baseline), with the baseline and current value. Empty when the policy has none."
+                  },
+                  "increase": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "result": {
+                            "type": "string"
+                          },
+                          "recommended_limit": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "note": {
+                            "type": "string"
+                          },
+                          "checks": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "check": {
+                                  "type": "string"
+                                },
+                                "passed": {
+                                  "type": [
+                                    "boolean",
+                                    "null"
+                                  ]
+                                },
+                                "detail": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "check",
+                                "passed",
+                                "detail"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "result",
+                          "recommended_limit",
+                          "note",
+                          "checks"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Account reviews under a policy with an increase rule: whether a higher limit was earned, with each test. Null otherwise."
                   }
                 },
                 "required": [
@@ -9315,7 +12766,11 @@
                   "knocked_out",
                   "rules",
                   "max_amount",
-                  "missing_facts"
+                  "missing_facts",
+                  "supported_limit",
+                  "supported_limit_explanation",
+                  "triggers",
+                  "increase"
                 ]
               },
               {
@@ -9323,6 +12778,68 @@
               }
             ],
             "description": "The instant policy pre-check: every knock-out rule with its result, the cap, missing facts."
+          },
+          "early_warnings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "metric": {
+                  "type": "string"
+                },
+                "baseline": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "current": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "change_pct": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "action": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "label",
+                "metric",
+                "baseline",
+                "current",
+                "change_pct",
+                "action",
+                "note"
+              ]
+            },
+            "description": "What the policy needs on file and what has arrived. Null when the policy asks for nothing and nothing was attached.\n\nTrend triggers that fired on an account review: also sent as `account.early_warning`. Empty when none did."
+          },
+          "evidence": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SerializedDecisionEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "final_outcome": {
             "oneOf": [
@@ -9374,7 +12891,7 @@
               "number",
               "null"
             ],
-            "description": "Milliseconds from submission to decision."
+            "description": "Milliseconds from submission to decision. For a request that waited for evidence: from the moment the evidence was complete."
           },
           "error": {
             "type": [
@@ -9396,9 +12913,17 @@
           }
         },
         "required": [
+          "website_research",
+          "advisory",
+          "assessment_status",
+          "information_requests",
+          "limitations",
+          "fact_provenance",
           "id",
           "object",
           "status",
+          "origin",
+          "origin_reason",
           "simulated",
           "mode",
           "decision_type",
@@ -9411,6 +12936,8 @@
           "requested_amount",
           "result",
           "policy",
+          "early_warnings",
+          "evidence",
           "final_outcome",
           "letter_id",
           "latency_ms",
@@ -9565,6 +13092,44 @@
           "escalated_at",
           "charge_off"
         ]
+      },
+      "SerializedEvidenceAccepted": {
+        "type": "object",
+        "properties": {
+          "case_id": {
+            "type": "string"
+          },
+          "analysis_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "const": "queued"
+          },
+          "next_action": {
+            "type": "object",
+            "properties": {
+              "method": {
+                "type": "string",
+                "const": "GET"
+              },
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "method",
+              "path"
+            ]
+          }
+        },
+        "required": [
+          "case_id",
+          "analysis_id",
+          "status",
+          "next_action"
+        ],
+        "description": "Accepted incremental evidence; GET the same case for authoritative progress."
       },
       "SerializedLoan": {
         "type": "object",
@@ -9773,6 +13338,101 @@
           "installment_count",
           "schedule"
         ]
+      },
+      "SerializedMe": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/SerializedMeKey"
+          },
+          "organization": {
+            "$ref": "#/components/schemas/SerializedMeOrganization"
+          }
+        },
+        "required": [
+          "key",
+          "organization"
+        ]
+      },
+      "SerializedMeKey": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "prefix": {
+            "type": "string",
+            "description": "The leading characters of the key, as the dashboard lists it. Not a secret."
+          },
+          "name": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "test",
+              "live"
+            ]
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The scopes this key holds. A scope the current API no longer knows is omitted."
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "last_used_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "prefix",
+          "name",
+          "mode",
+          "scopes",
+          "created_at",
+          "last_used_at"
+        ],
+        "description": "The calling key. Never carries the key or its hash."
+      },
+      "SerializedMeOrganization": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "verification_status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "pending",
+              "rejected",
+              "not_submitted"
+            ],
+            "description": "Business verification. `pending` is submitted and awaiting review;\n`not_submitted` covers an organization that has not finished onboarding or\ndeferred verification."
+          },
+          "can_underwrite": {
+            "type": "boolean",
+            "description": "Whether this organization can create cases. False until business\nverification is approved; while false, `POST /v1/underwrite` returns 403\n`forbidden` and every application in a `POST /v1/underwrite/batch` is\nrefused, whatever scopes the key holds."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "verification_status",
+          "can_underwrite"
+        ],
+        "description": "The organization the key belongs to."
       },
       "SerializedPayment": {
         "type": "object",
@@ -10330,6 +13990,347 @@
           "description",
           "created_at",
           "updated_at"
+        ]
+      },
+      "StatementMonthlyRow": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "file_name": {
+            "type": "string"
+          },
+          "period": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "deposits": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "withdrawals": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "deposit_count": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "largest_deposit": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "beginning_balance": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ending_balance": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "avg_daily_balance": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "lowest_balance": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "nsf_count": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "negative_days": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "document_id",
+          "file_name",
+          "period",
+          "deposits",
+          "withdrawals",
+          "deposit_count",
+          "largest_deposit",
+          "beginning_balance",
+          "ending_balance",
+          "avg_daily_balance",
+          "lowest_balance",
+          "nsf_count",
+          "negative_days"
+        ],
+        "description": "Public, measured statement fields. Money is whole dollars; null means not read."
+      },
+      "UnderwritingAssessment": {
+        "type": "object",
+        "properties": {
+          "document_integrity": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pass",
+                  "fail",
+                  "unverified",
+                  "not_applicable"
+                ]
+              },
+              "verdict": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "Authentic",
+                      "Suspicious",
+                      "Altered",
+                      "Fake",
+                      "Unverified"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "integrity_score": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "status",
+              "verdict",
+              "integrity_score"
+            ]
+          },
+          "evidence_sufficiency": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "sufficient",
+                  "partial",
+                  "insufficient"
+                ]
+              },
+              "missing": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Plain-language list of what is missing or failed. Empty when sufficient."
+              }
+            },
+            "required": [
+              "status",
+              "missing"
+            ]
+          },
+          "creditworthiness": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "assessed",
+                  "undetermined"
+                ]
+              },
+              "borrower_risk_score": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "The analysis risk score, published only when the borrower was actually assessed."
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Why it could not be assessed; null when assessed."
+              }
+            },
+            "required": [
+              "status",
+              "borrower_risk_score",
+              "reason"
+            ]
+          },
+          "decision_basis": {
+            "type": "string",
+            "enum": [
+              "document_integrity",
+              "insufficient_evidence",
+              "creditworthiness",
+              "no_decision_yet"
+            ]
+          },
+          "confidence_basis": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "What the analysis's confidence number measures. Null when no analysis has run."
+          }
+        },
+        "required": [
+          "document_integrity",
+          "evidence_sufficiency",
+          "creditworthiness",
+          "decision_basis",
+          "confidence_basis"
+        ]
+      },
+      "WebsiteFinding": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "application_value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "website_value": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "quote": {
+            "type": "string"
+          },
+          "finding": {
+            "type": "string",
+            "enum": [
+              "consistent",
+              "potential_contradiction",
+              "additional_context"
+            ]
+          },
+          "explanation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "application_value",
+          "website_value",
+          "source_url",
+          "quote",
+          "finding",
+          "explanation"
+        ]
+      },
+      "WebsiteResearch": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "partial",
+              "unavailable",
+              "not_provided"
+            ]
+          },
+          "researched_at": {
+            "type": "string"
+          },
+          "website": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "profile_hash": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WebsiteFinding"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "fetched_at": {
+                  "type": "string"
+                },
+                "content_hash": {
+                  "type": "string"
+                },
+                "truncated": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "url",
+                "fetched_at",
+                "content_hash",
+                "truncated"
+              ]
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "status",
+          "researched_at",
+          "website",
+          "profile_hash",
+          "summary",
+          "findings",
+          "sources",
+          "limitations"
         ]
       }
     }

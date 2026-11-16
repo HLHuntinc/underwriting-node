@@ -256,3 +256,43 @@ Node.js 20 or later (or any runtime with `fetch`, `FormData` and Web Crypto). ES
 ## License
 
 MIT
+
+### Available information and incremental evidence
+
+Submit the merchant information you already hold. `requested_amount` can be omitted or null;
+unknown revenue or processing history does not block normal case creation. Use separate
+`business_id` values for businesses sharing an owner and `auto_match_email: false`.
+
+```ts
+const submitted = await hlhunt.underwrite.create({
+  product_slug: "biz-term-loan",
+  applicant: { name: "Example Merchant LLC", email: "owner@example.com" },
+  business_id: "merchant-001",
+  website: "https://merchant.example",
+  requested_amount: null,
+  auto_match_email: false,
+  facts: { processing_volume: 18000 },
+})
+await hlhunt.cases.addFacts(submitted.id, { facts: { fulfillment_delay_days: 3 } })
+const current = await hlhunt.cases.retrieve(submitted.id)
+console.log(current.available_assessment?.information_requests)
+```
+
+Use `cases.documents.upload` with category `financial` or `processing`. Normal case uploads
+permit 25 MiB per file subject to hosting ingress limits; link an existing processed case to a decision with `case_id` to reuse its
+extraction without hitting the Decision Agent's 4 MiB direct-upload limit. Decision methods
+include `decisions.addFacts` and `decisions.documents.list/upload`. `waitFor` and
+`createAndWait` also return on `awaiting_evidence`, allowing your UI to show specific requests.
+
+Subscribe to normal `application.information_requested`, `.evidence_received`,
+`.analysis_resumed`, `.analysis_completed`, `.analysis_failed`, and Decision
+`decision.evidence_required`, `.evidence_received`, `.analysis_resumed`, `.completed`.
+Verify signatures, durably deduplicate by event ID, and retrieve current state when notified.
+Delivery can repeat or arrive out of order; do not overwrite current state with an older
+payload. Advisory recommendations never authorize merchant boarding, limits, reserves or
+applicant communications. Call final-action methods only after explicit authorization.
+
+Website research returns quoted public-site findings and source links, not independent
+business verification. Processing extraction keeps volume separate from revenue and credit.
+See the [available-information guide](https://underwriting.hlhunt.org/docs/guides/available-information)
+for field contracts, evidence limits, authorization requirements and update semantics.

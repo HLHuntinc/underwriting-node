@@ -1,7 +1,10 @@
+import { toBlob, type Uploadable } from "./cases"
 import { pollUntil, type APIClient, type APIPromise, type PagePromise, type PageParams, type RequestOptions, type WaitOptions } from "../core"
 import { WaitTimeoutError } from "../errors"
 import type {
   Decision,
+  DecisionDocument,
+  DecisionFactsParams,
   DecisionCreateParams,
   DecisionListParams,
   DecisionOutcomeParams,
@@ -18,11 +21,27 @@ const enc = encodeURIComponent
  *   if (decision.result?.outcome === "approve") ...
  *   await hlhunt.decisions.reportOutcome(decision.id, { outcome: "approve", amount: 25000 })
  */
-export class Decisions {
+export class DecisionDocuments {
   constructor(private readonly client: APIClient) {}
+  async list(id: string, options?: RequestOptions): Promise<DecisionDocument[]> {
+    const result = await this.client.request<{ data: DecisionDocument[] }>({ method: "GET", path: `/v1/decisions/${enc(id)}/documents` }, options)
+    return result.data
+  }
+  upload(id: string, params: { file: Uploadable; kind?: "bank_statements" | "card_statements" | "financial_statements" | "tax_return" | "other" }, options?: RequestOptions): APIPromise<Decision> {
+    const { blob, filename } = toBlob(params.file)
+    const form = new FormData()
+    form.append("file", blob, filename)
+    if (params.kind) form.append("kind", params.kind)
+    return this.client.request({ method: "POST", path: `/v1/decisions/${enc(id)}/documents`, form }, options)
+  }
+}
+
+export class Decisions {
+  readonly documents: DecisionDocuments
+  constructor(private readonly client: APIClient) { this.documents = new DecisionDocuments(client) }
 
   /**
-   * Submit a request. Returns at once: knock-outs, missing facts and test
+   * Submit a request. Missing material evidence remains awaiting_evidence. Knock-outs and test
    * scenarios come back decided (`status: "decided"`); everything else is
    * `queued`/`deciding` and finishes in the `decision.completed` webhook, or
    * use `createAndWait`.
@@ -40,6 +59,11 @@ export class Decisions {
     return this.client.page("/v1/decisions", params as Record<string, unknown>, options)
   }
 
+  /** Supply specific missing facts without creating another decision. */
+  addFacts(id: string, params: DecisionFactsParams, options?: RequestOptions): APIPromise<Decision> {
+    return this.client.request({ method: "POST", path: `/v1/decisions/${enc(id)}/facts`, body: params }, options)
+  }
+
   /**
    * Your final call. An adverse outcome (decline, counter, reduce, close)
    * issues the applicant's letter under your branding. Recorded once.
@@ -48,11 +72,11 @@ export class Decisions {
     return this.client.request({ method: "POST", path: `/v1/decisions/${enc(id)}/outcome`, body: params }, options)
   }
 
-  /** Wait until a decision is `decided` or `failed`. */
+  /** Wait until a decision is `decided`, `failed`, or needs information (`awaiting_evidence`). */
   async waitFor(id: string, options: WaitOptions & RequestOptions = {}): Promise<Decision> {
     return pollUntil(
       () => this.retrieve(id, options),
-      (d) => d.status === "decided" || d.status === "failed",
+      (d) => d.status === "decided" || d.status === "failed" || d.status === "awaiting_evidence",
       options,
       (last) => new WaitTimeoutError(`Decision ${id} was still ${last.status} after waiting. It continues server-side; use the webhook or retrieve() later.`, last),
     )
@@ -61,7 +85,7 @@ export class Decisions {
   /** Submit and wait for the result (typically 10-60 s for an agent decision; instant for policy decisions). */
   async createAndWait(params: DecisionCreateParams, options: WaitOptions & RequestOptions = {}): Promise<Decision> {
     const created = await this.create(params, options)
-    if (created.status === "decided" || created.status === "failed") return created
+    if (created.status === "decided" || created.status === "failed" || created.status === "awaiting_evidence") return created
     return this.waitFor(created.id, options)
   }
 }

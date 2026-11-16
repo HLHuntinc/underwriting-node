@@ -12,6 +12,8 @@ import type {
   CaseDecideParams,
   CaseDecision,
   CaseDetail,
+  CaseFactsParams,
+  EvidenceAccepted,
   CaseListParams,
   CaseSummary,
   DecisionLetter,
@@ -32,7 +34,7 @@ export type Uploadable =
 
 export interface DocumentUploadParams {
   file: Uploadable
-  /** One of `financial` (bank statements), `id_verification`, `contract`, `stipulation`, `insurance`, `legal`, `other`. Defaults to `other`. */
+  /** One of `financial` (bank statements), `processing` (processor evidence), `id_verification`, `contract`, `stipulation`, `insurance`, `legal`, `other`. Defaults to `other`. */
   category?: string
   name?: string
   description?: string
@@ -121,6 +123,11 @@ export class Cases {
 
   retrieve(id: string, options?: RequestOptions): APIPromise<CaseDetail> {
     return this.client.request({ method: "GET", path: `/v1/cases/${enc(id)}` }, options)
+  }
+
+  /** Merge available facts and/or explicitly link evidence; resumes this same case. */
+  addFacts(id: string, params: CaseFactsParams, options?: RequestOptions): APIPromise<EvidenceAccepted> {
+    return this.client.request({ method: "POST", path: `/v1/cases/${enc(id)}/facts`, body: params }, options)
   }
 
   /** Record a binding decision (approve, decline) or route to review. Needs the `cases:decide` scope. */

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Available-information case facts/authorization updates, Decision facts and document methods.
+- Optional/null amounts and business-scoped evidence contracts regenerated from OpenAPI.
+- Website/processing evidence response types and lifecycle webhook events.
+- Waiting decisions return at `awaiting_evidence` for incremental completion.
+
 This project follows [Semantic Versioning](https://semver.org). Until 1.0, a minor version may include breaking changes; they are called out here.
 
 ## 0.1.0 (unreleased)

@@ -4,6 +4,57 @@
  */
 
 export type paths = {
+    "/v1/accounts/{customerId}/signals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** send fresh figures about an account. */
+        post: operations["post_accounts_by_customerId_signals"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/accounts/performance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** report how your accounts are performing. */
+        post: operations["post_accounts_performance"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/accounts/vintages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** the vintage report. */
+        get: operations["get_accounts_vintages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/applicants": {
         parameters: {
             query?: never;
@@ -210,6 +261,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/v1/cases/{id}/facts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** add available facts to the SAME application and resume analysis. */
+        post: operations["post_cases_by_id_facts"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/cases/{id}/letters": {
         parameters: {
             query?: never;
@@ -337,10 +405,8 @@ export type paths = {
             path?: never;
             cookie?: never;
         };
-        /** your requests, newest first. */
         get: operations["get_decisions"];
         put?: never;
-        /** ask the Decision Agent to decide a credit request. */
         post: operations["post_decisions"];
         delete?: never;
         options?: never;
@@ -365,6 +431,39 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/v1/decisions/{id}/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_decisions_by_id_documents"];
+        put?: never;
+        post: operations["post_decisions_by_id_documents"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/decisions/{id}/facts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** send facts a waiting decision needs. */
+        post: operations["post_decisions_by_id_facts"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/decisions/{id}/outcome": {
         parameters: {
             query?: never;
@@ -376,6 +475,23 @@ export type paths = {
         put?: never;
         /** report what you finally did with an agent decision. */
         post: operations["post_decisions_by_id_outcome"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/decisions/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** every decision in a date range as CSV, one row each, for a risk team's own tools. */
+        get: operations["get_decisions_export"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -425,6 +541,23 @@ export type paths = {
         };
         /** download an adverse-action letter as a PDF. */
         get: operations["get_letters_by_id_pdf"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** the calling API key and its organization: the key's mode and scopes, and whether the organization's business verification lets it underwrite. Any valid key may call it; no scope is required. Use it to check a key before integrating, and read `organization.can_underwrite` before the first POST /v1/underwrite. */
+        get: operations["get_me"];
         put?: never;
         post?: never;
         delete?: never;
@@ -543,7 +676,7 @@ export type paths = {
         };
         get?: never;
         put?: never;
-        /** submit an application for underwriting. Your organization must have an APPROVED business verification. Until it does, every submission is refused with 403 `forbidden` and no case is created; the message says whether a verification has never been submitted or was rejected, because the remedy differs. Verification is submitted and reviewed outside the API — ask your HL Hunt contact if you are unsure of your organization's status. */
+        /** submit an application for underwriting. Your organization must have an APPROVED business verification. Until it does, every submission is refused with 403 `forbidden` and no case is created; the message says whether a verification has never been submitted or was rejected, because the remedy differs. Verification is submitted and reviewed outside the API; to check before submitting, read `organization.can_underwrite` from GET /v1/me. */
         post: operations["post_underwrite"];
         delete?: never;
         options?: never;
@@ -621,6 +754,142 @@ export type paths = {
     };
 };
 export type webhooks = {
+    "account.early_warning": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * An account review found something your policy watches for: a trend trigger fired (deposits fell too far, NSFs rose, a payment went past due, vendor payments were missed). The payload names the decision, the customer, the outcome the review reached and each warning with its baseline, current figure and the action your policy takes. Sent in addition to `decision.completed`, for live and test reviews alike, never for a simulated scenario. Route it to collections or account management without reading every completed decision.
+         * @description An account review found something your policy watches for: a trend trigger fired (deposits fell too far, NSFs rose, a payment went past due, vendor payments were missed). The payload names the decision, the customer, the outcome the review reached and each warning with its baseline, current figure and the action your policy takes. Sent in addition to `decision.completed`, for live and test reviews alike, never for a simulated scenario. Route it to collections or account management without reading every completed decision. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description Which attempt this is, from 1 to 8. */
+                    "X-Webhook-Attempt": string;
+                    /** @description The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat. */
+                    "X-Webhook-Event-Id": string;
+                    /** @description The event type, identical to `type` in the body, readable before the body is parsed. */
+                    "X-Webhook-Event-Type": string;
+                    /** @description The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery. */
+                    "X-Webhook-Id": string;
+                    /** @description HMAC-SHA256 over "<timestamp>:<raw body>", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred. */
+                    "X-Webhook-Signature": string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date-time
+                         * @description When the event occurred, not when this attempt was sent.
+                         */
+                        created_at: string;
+                        /** @description The resource as the matching read endpoint serializes it. */
+                        data: Record<string, never>;
+                        /** @enum {string} */
+                        environment: "live" | "test";
+                        /** @description Unique id for this event, the same on every retry. De-duplicate on it. */
+                        id: string;
+                        /** @description True for a live-mode event, false for test mode. */
+                        livemode: boolean;
+                        /** @constant */
+                        type: "account.early_warning";
+                    };
+                };
+            };
+            responses: {
+                /** @description Acknowledged. The delivery is complete. */
+                "2xx": {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "application.analysis_completed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * An available-information assessment is ready. It may be preliminary with information requests; this is advisory and does not board a merchant or authorize any financial or communication action.
+         * @description An available-information assessment is ready. It may be preliminary with information requests; this is advisory and does not board a merchant or authorize any financial or communication action. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description Which attempt this is, from 1 to 8. */
+                    "X-Webhook-Attempt": string;
+                    /** @description The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat. */
+                    "X-Webhook-Event-Id": string;
+                    /** @description The event type, identical to `type` in the body, readable before the body is parsed. */
+                    "X-Webhook-Event-Type": string;
+                    /** @description The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery. */
+                    "X-Webhook-Id": string;
+                    /** @description HMAC-SHA256 over "<timestamp>:<raw body>", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred. */
+                    "X-Webhook-Signature": string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date-time
+                         * @description When the event occurred, not when this attempt was sent.
+                         */
+                        created_at: string;
+                        /** @description The resource as the matching read endpoint serializes it. */
+                        data: Record<string, never>;
+                        /** @enum {string} */
+                        environment: "live" | "test";
+                        /** @description Unique id for this event, the same on every retry. De-duplicate on it. */
+                        id: string;
+                        /** @description True for a live-mode event, false for test mode. */
+                        livemode: boolean;
+                        /** @constant */
+                        type: "application.analysis_completed";
+                    };
+                };
+            };
+            responses: {
+                /** @description Acknowledged. The delivery is complete. */
+                "2xx": {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "application.analysis_failed": {
         parameters: {
             query?: never;
@@ -689,6 +958,74 @@ export type webhooks = {
         patch?: never;
         trace?: never;
     };
+    "application.analysis_resumed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * An available-information analysis job started. Includes the stable analysis_id and case references. Retries can repeat this event; retrieve current state.
+         * @description An available-information analysis job started. Includes the stable analysis_id and case references. Retries can repeat this event; retrieve current state. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description Which attempt this is, from 1 to 8. */
+                    "X-Webhook-Attempt": string;
+                    /** @description The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat. */
+                    "X-Webhook-Event-Id": string;
+                    /** @description The event type, identical to `type` in the body, readable before the body is parsed. */
+                    "X-Webhook-Event-Type": string;
+                    /** @description The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery. */
+                    "X-Webhook-Id": string;
+                    /** @description HMAC-SHA256 over "<timestamp>:<raw body>", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred. */
+                    "X-Webhook-Signature": string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date-time
+                         * @description When the event occurred, not when this attempt was sent.
+                         */
+                        created_at: string;
+                        /** @description The resource as the matching read endpoint serializes it. */
+                        data: Record<string, never>;
+                        /** @enum {string} */
+                        environment: "live" | "test";
+                        /** @description Unique id for this event, the same on every retry. De-duplicate on it. */
+                        id: string;
+                        /** @description True for a live-mode event, false for test mode. */
+                        livemode: boolean;
+                        /** @constant */
+                        type: "application.analysis_resumed";
+                    };
+                };
+            };
+            responses: {
+                /** @description Acknowledged. The delivery is complete. */
+                "2xx": {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "application.decided": {
         parameters: {
             query?: never;
@@ -738,6 +1075,142 @@ export type webhooks = {
                         livemode: boolean;
                         /** @constant */
                         type: "application.decided";
+                    };
+                };
+            };
+            responses: {
+                /** @description Acknowledged. The delivery is complete. */
+                "2xx": {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "application.evidence_received": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Facts or documents were recorded on an existing case. Includes case references, mode, timestamps and the received fact keys or document id. Analysis may still be running.
+         * @description Facts or documents were recorded on an existing case. Includes case references, mode, timestamps and the received fact keys or document id. Analysis may still be running. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description Which attempt this is, from 1 to 8. */
+                    "X-Webhook-Attempt": string;
+                    /** @description The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat. */
+                    "X-Webhook-Event-Id": string;
+                    /** @description The event type, identical to `type` in the body, readable before the body is parsed. */
+                    "X-Webhook-Event-Type": string;
+                    /** @description The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery. */
+                    "X-Webhook-Id": string;
+                    /** @description HMAC-SHA256 over "<timestamp>:<raw body>", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred. */
+                    "X-Webhook-Signature": string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date-time
+                         * @description When the event occurred, not when this attempt was sent.
+                         */
+                        created_at: string;
+                        /** @description The resource as the matching read endpoint serializes it. */
+                        data: Record<string, never>;
+                        /** @enum {string} */
+                        environment: "live" | "test";
+                        /** @description Unique id for this event, the same on every retry. De-duplicate on it. */
+                        id: string;
+                        /** @description True for a live-mode event, false for test mode. */
+                        livemode: boolean;
+                        /** @constant */
+                        type: "application.evidence_received";
+                    };
+                };
+            };
+            responses: {
+                /** @description Acknowledged. The delivery is complete. */
+                "2xx": {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "application.information_requested": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Available-information analysis needs specific material policy evidence. Includes case_id, application_id, business_id, mode, timestamps, analysis_id and information_requests. Retrieve the current case before changing a notification.
+         * @description Available-information analysis needs specific material policy evidence. Includes case_id, application_id, business_id, mode, timestamps, analysis_id and information_requests. Retrieve the current case before changing a notification. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description Which attempt this is, from 1 to 8. */
+                    "X-Webhook-Attempt": string;
+                    /** @description The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat. */
+                    "X-Webhook-Event-Id": string;
+                    /** @description The event type, identical to `type` in the body, readable before the body is parsed. */
+                    "X-Webhook-Event-Type": string;
+                    /** @description The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery. */
+                    "X-Webhook-Id": string;
+                    /** @description HMAC-SHA256 over "<timestamp>:<raw body>", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred. */
+                    "X-Webhook-Signature": string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date-time
+                         * @description When the event occurred, not when this attempt was sent.
+                         */
+                        created_at: string;
+                        /** @description The resource as the matching read endpoint serializes it. */
+                        data: Record<string, never>;
+                        /** @enum {string} */
+                        environment: "live" | "test";
+                        /** @description Unique id for this event, the same on every retry. De-duplicate on it. */
+                        id: string;
+                        /** @description True for a live-mode event, false for test mode. */
+                        livemode: boolean;
+                        /** @constant */
+                        type: "application.information_requested";
                     };
                 };
             };
@@ -1029,6 +1502,74 @@ export type webhooks = {
         patch?: never;
         trace?: never;
     };
+    "decision.analysis_resumed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * The Decision Agent started analysis of available evidence. Payload is the current request; retries may produce additional starts. Recommendations remain advisory.
+         * @description The Decision Agent started analysis of available evidence. Payload is the current request; retries may produce additional starts. Recommendations remain advisory. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description Which attempt this is, from 1 to 8. */
+                    "X-Webhook-Attempt": string;
+                    /** @description The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat. */
+                    "X-Webhook-Event-Id": string;
+                    /** @description The event type, identical to `type` in the body, readable before the body is parsed. */
+                    "X-Webhook-Event-Type": string;
+                    /** @description The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery. */
+                    "X-Webhook-Id": string;
+                    /** @description HMAC-SHA256 over "<timestamp>:<raw body>", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred. */
+                    "X-Webhook-Signature": string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date-time
+                         * @description When the event occurred, not when this attempt was sent.
+                         */
+                        created_at: string;
+                        /** @description The resource as the matching read endpoint serializes it. */
+                        data: Record<string, never>;
+                        /** @enum {string} */
+                        environment: "live" | "test";
+                        /** @description Unique id for this event, the same on every retry. De-duplicate on it. */
+                        id: string;
+                        /** @description True for a live-mode event, false for test mode. */
+                        livemode: boolean;
+                        /** @constant */
+                        type: "decision.analysis_resumed";
+                    };
+                };
+            };
+            responses: {
+                /** @description Acknowledged. The delivery is complete. */
+                "2xx": {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "decision.completed": {
         parameters: {
             query?: never;
@@ -1078,6 +1619,142 @@ export type webhooks = {
                         livemode: boolean;
                         /** @constant */
                         type: "decision.completed";
+                    };
+                };
+            };
+            responses: {
+                /** @description Acknowledged. The delivery is complete. */
+                "2xx": {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "decision.evidence_received": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Facts or files were received for the same Decision Agent request. Payload is its current decision representation; retrieve current state before updating notifications.
+         * @description Facts or files were received for the same Decision Agent request. Payload is its current decision representation; retrieve current state before updating notifications. Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description Which attempt this is, from 1 to 8. */
+                    "X-Webhook-Attempt": string;
+                    /** @description The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat. */
+                    "X-Webhook-Event-Id": string;
+                    /** @description The event type, identical to `type` in the body, readable before the body is parsed. */
+                    "X-Webhook-Event-Type": string;
+                    /** @description The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery. */
+                    "X-Webhook-Id": string;
+                    /** @description HMAC-SHA256 over "<timestamp>:<raw body>", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred. */
+                    "X-Webhook-Signature": string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date-time
+                         * @description When the event occurred, not when this attempt was sent.
+                         */
+                        created_at: string;
+                        /** @description The resource as the matching read endpoint serializes it. */
+                        data: Record<string, never>;
+                        /** @enum {string} */
+                        environment: "live" | "test";
+                        /** @description Unique id for this event, the same on every retry. De-duplicate on it. */
+                        id: string;
+                        /** @description True for a live-mode event, false for test mode. */
+                        livemode: boolean;
+                        /** @constant */
+                        type: "decision.evidence_received";
+                    };
+                };
+            };
+            responses: {
+                /** @description Acknowledged. The delivery is complete. */
+                "2xx": {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "decision.evidence_required": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * A Decision Agent request is waiting for evidence: documents its policy requires, or the fresh facts a scheduled review needs. The payload is the decision, exactly as `GET /v1/decisions/{id}` returns it, with `status: awaiting_evidence` and `evidence.outstanding` listing each item still to send. Fired when the request starts waiting, and again when a statement has been read, a file turns out to be unusable, or someone on your team attaches a file in the dashboard. An upload made over the API is answered in its own response and is not repeated by webhook. Also fired when the platform opens a scheduled account review (`origin: scheduled_review`).
+         * @description A Decision Agent request is waiting for evidence: documents its policy requires, or the fresh facts a scheduled review needs. The payload is the decision, exactly as `GET /v1/decisions/{id}` returns it, with `status: awaiting_evidence` and `evidence.outstanding` listing each item still to send. Fired when the request starts waiting, and again when a statement has been read, a file turns out to be unusable, or someone on your team attaches a file in the dashboard. An upload made over the API is answered in its own response and is not repeated by webhook. Also fired when the platform opens a scheduled account review (`origin: scheduled_review`). Delivered to every endpoint subscribed to this event, in the mode of the key that registered it. Up to 8 attempts: the first immediately, then after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Respond 2xx to acknowledge; any other status, or no response within 10 seconds, schedules the next attempt. After the last one the delivery is marked exhausted and is not retried.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description Which attempt this is, from 1 to 8. */
+                    "X-Webhook-Attempt": string;
+                    /** @description The event's id, identical to `id` in the body. It is the same on every retry and on every endpoint the event is delivered to, so de-duplicate on it: process an id once and answer 2xx to any repeat. */
+                    "X-Webhook-Event-Id": string;
+                    /** @description The event type, identical to `type` in the body, readable before the body is parsed. */
+                    "X-Webhook-Event-Type": string;
+                    /** @description The id of this one attempt. A retry has a new one, so do not de-duplicate on it; quote it to HL Hunt support when asking about a specific delivery. */
+                    "X-Webhook-Id": string;
+                    /** @description HMAC-SHA256 over "<timestamp>:<raw body>", keyed with the signing secret returned once when the endpoint was registered. Format: timestamp=<unix seconds>,sig=<hex>. Verify against the RAW bytes you received — re-serialising the JSON changes the digest. Reject a delivery whose timestamp is more than 300 seconds from your own clock. Every retry is signed FRESH, so a retry's timestamp is the moment it was sent, not the moment the event occurred. */
+                    "X-Webhook-Signature": string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date-time
+                         * @description When the event occurred, not when this attempt was sent.
+                         */
+                        created_at: string;
+                        /** @description The resource as the matching read endpoint serializes it. */
+                        data: Record<string, never>;
+                        /** @enum {string} */
+                        environment: "live" | "test";
+                        /** @description Unique id for this event, the same on every retry. De-duplicate on it. */
+                        id: string;
+                        /** @description True for a live-mode event, false for test mode. */
+                        livemode: boolean;
+                        /** @constant */
+                        type: "decision.evidence_required";
                     };
                 };
             };
@@ -1236,6 +1913,71 @@ export type webhooks = {
 };
 export type components = {
     schemas: {
+        AvailableAssessment: {
+            adverse_factors: string[];
+            /** @constant */
+            advisory: true;
+            analysis_id: string;
+            assessed_at: string;
+            business_id: string | null;
+            case_id: string;
+            checks: {
+                detail: string;
+                id: string;
+                /** @enum {string} */
+                status: "completed" | "unavailable" | "not_authorized" | "missing_data";
+            }[];
+            conditions: string[];
+            evidence_sources: {
+                id: string;
+                /** @enum {string} */
+                provenance: "verified" | "merchant_reported" | "extracted" | "inferred";
+                type: string;
+            }[];
+            facts: {
+                key: string;
+                /** @enum {string} */
+                provenance: "merchant_reported" | "extracted";
+                source_id: string;
+                value: string | number | boolean | null;
+            }[];
+            information_requests: components["schemas"]["InformationRequest"][];
+            limitations: string[];
+            mode: string;
+            next_actions: string[];
+            policy: {
+                checks: unknown[];
+                id: string | null;
+                version: number;
+            };
+            rationale: string;
+            recommendation: string;
+            /** @constant */
+            schema_version: "1";
+            /** @enum {string} */
+            status: "preliminary" | "supported";
+            supporting_factors: string[];
+            unresolved_gaps: string[];
+        };
+        DepositBreakdownSummary: {
+            /** @description Monthly average of transfers, loan proceeds and refunds: never income. */
+            excluded_monthly: number;
+            /** @description Monthly average per category, in dollars. */
+            monthly_average: Record<string, never>;
+            /** @description Statements that carried a breakdown, out of `statements_read`. */
+            months_classified: number;
+            /** @description Which categories qualifying revenue is made of. */
+            qualifying_basis: unknown[];
+            /** @description Monthly average of the deposits that count as income. */
+            qualifying_monthly_revenue: number;
+            statements_read: number;
+            /** @description Monthly average of cash and unclassified deposits: not proven either way. */
+            unproven_monthly: number;
+            /** @description Monthly average of the gap between the categories and the statement's total
+             *     deposits, already folded into `other_unclassified`. Non-zero means the
+             *     classification did not fully account for the deposits. */
+            unreconciled_monthly: number;
+        };
         Error: {
             error: {
                 /** @enum {string} */
@@ -1247,6 +1989,46 @@ export type components = {
                 param?: string;
                 request_id: string;
             };
+        };
+        InformationRequest: {
+            accepted_formats: string[];
+            affected_check: string;
+            document_id: string | null;
+            due_at: string | null;
+            id: string;
+            key: string;
+            label: string;
+            month: string | null;
+            next_action: {
+                /** @constant */
+                method: "POST";
+                path: string;
+            };
+            reason: string;
+            required: boolean;
+            /** @enum {string} */
+            type: "fact" | "document";
+            unreadable_files: {
+                document_id: string;
+                file_name: string;
+                problem: string;
+            }[];
+        };
+        ProcessingEvidence: {
+            citations: {
+                field: string;
+                page: number | null;
+                quote: string;
+            }[];
+            document_id: string;
+            facts: Record<string, never>;
+            file_name: string;
+            limitations: string[];
+            merchant_name: string | null;
+            period: string | null;
+            read_at: string;
+            /** @enum {string} */
+            status: "extracted" | "unreadable" | "unavailable";
         };
         SerializedAmortizationRow: {
             amount: number;
@@ -1474,7 +2256,8 @@ export type components = {
             /** @description Document integrity, evidence sufficiency and creditworthiness, kept apart:
              *     a decline for forged statements is not a finding that the borrower cannot
              *     repay. Absent only if it could not be computed. */
-            assessment?: unknown;
+            assessment?: components["schemas"]["UnderwritingAssessment"];
+            available_assessment?: components["schemas"]["AvailableAssessment"] | null;
             background: {
                 address_match: boolean;
                 bankruptcies: number;
@@ -1496,7 +2279,7 @@ export type components = {
                 /** @description Deposits sorted into revenue, wages, transfers, loan proceeds, refunds,
                  *     cash and unclassified, with qualifying monthly revenue (dollars). Null
                  *     when the statements were not classified. */
-                deposit_breakdown: unknown | null;
+                deposit_breakdown: components["schemas"]["DepositBreakdownSummary"] | null;
                 /** @description Statement path only; null / 0 for a Plaid link. `deposit_trend_pct` is the
                  *     % change in monthly deposits from the first statement read to the last.
                  *     `stacked_lenders` counts distinct lenders with recurring debits — 2 or
@@ -1529,7 +2312,7 @@ export type components = {
                  */
                 source: "plaid" | "statements" | "manual" | null;
                 stacked_lenders: number;
-                statement_months: unknown[];
+                statement_months: components["schemas"]["StatementMonthlyRow"][];
                 /** @description NULL when the platform holds no measured balance for the account —
                  *     because the provider returned none, or because no bank was ever linked.
                  *     NEVER estimated, and never zero-filled: a $0 balance is a measurement
@@ -1576,10 +2359,12 @@ export type components = {
              *     person as-is; `next_step` says who must act (`upload_statements`, `wait`,
              *     `retry`, `decide`, `none`). Absent only if progress could not be loaded. */
             processing?: components["schemas"]["SerializedCaseProgress"];
+            processing_evidence?: components["schemas"]["ProcessingEvidence"][];
             product: string;
             /** @enum {string} */
             status: "pending" | "approved" | "declined" | "review" | "invited";
             updated_at: string | null;
+            website_research?: components["schemas"]["WebsiteResearch"] | null;
         };
         /** @description Where an application is right now, written to be shown to a person as-is.
          *     Returned on `GET /v1/cases`, `GET /v1/cases/{id}` and the
@@ -1689,6 +2474,84 @@ export type components = {
             status: string;
             updated_at: string | null;
         };
+        SerializedDecisionDocument: {
+            content_type: string;
+            file_name: string;
+            id: string;
+            /** @description bank_statements, card_statements, financial_statements, tax_return or other. */
+            kind: string;
+            month: string | null;
+            /** @constant */
+            object: "decision_document";
+            /** @description bank_statements: the period as printed on the statement, and the month it was placed in ("YYYY-MM"). */
+            period: string | null;
+            /** @description Why the file cannot be used, in words you can show your customer. Null otherwise. */
+            problem: string | null;
+            read_at: string | null;
+            size_bytes: number;
+            /** @description `uploaded` or `reading` while a bank statement is being read; `read` once it counts; `unreadable` with `problem` when it cannot be used. Kinds other than bank_statements are `read` on arrival: they are kept and counted, not read. */
+            status: string;
+            uploaded_at: string | null;
+        };
+        SerializedDecisionEvidence: {
+            /** @description When everything the policy needed was on file. Null while waiting, and for a request whose wait ran out. */
+            completed_at: string | null;
+            /** @description The documents sent with this request. */
+            documents: components["schemas"]["SerializedDecisionDocument"][];
+            /** @description When the wait runs out and the request is referred. Null once the evidence is complete. */
+            due_at: string | null;
+            /** @description Facts still to send to `POST /v1/decisions/{id}/facts`: for a scheduled review, every fact its policy reads; otherwise the required facts the request left out. A fact the requested bank statements will prove is not listed. */
+            facts_needed: {
+                fact: string;
+                label: string;
+            }[];
+            /** @description Where a figure proven by the statements replaced one your system sent. */
+            notes: string[];
+            /** @description Every item still to send, one per line, ready to show: "Bank statement for October 2026", "Current average monthly deposits". The fact names behind the second kind are in `facts_needed`. */
+            outstanding: string[];
+            /** @description One entry per document requirement in the policy. */
+            requirements: {
+                detail: string;
+                files_received: number | null;
+                /** @description Other kinds: files needed and received. */
+                files_required: number | null;
+                id: string;
+                kind: string;
+                label: string;
+                months_covered: string[];
+                months_missing: string[];
+                /** @description bank_statements: the months required, covered and missing, oldest first ("YYYY-MM"). */
+                months_required: string[];
+                outstanding: string[];
+                /** @description Files received for this requirement that could not be used, each with the reason. */
+                problems: {
+                    document_id: string;
+                    file_name: string;
+                    problem: string;
+                }[];
+                /** @description satisfied, missing, incomplete, unreadable, pending or not_required. */
+                status: string;
+            }[];
+            /** @description `incomplete`: something is outstanding. `pending`: nothing more is known to be missing and at least one file is still being read. `complete`: nothing more is needed. `not_required`: the policy asks for no documents. */
+            status: string;
+            /** @description What this request's own bank statements show, computed in code. Null until one is read. Whole dollars. */
+            verified: {
+                avg_monthly_deposits: number;
+                current_balance: number | null;
+                deposit_trend_pct: number | null;
+                integrity_flags: string[];
+                integrity_score: number;
+                /** @description Authentic, Unverified, Suspicious, Altered or Fake. Altered or Fake refers the request to a person. */
+                integrity_verdict: string;
+                monthly_net_cash_flow: number;
+                months: string[];
+                nsf_count: number;
+                /** @description Deposits that name a payer, and deposits that do not. Null when the statements were not classified. */
+                qualifying_monthly_revenue: number | null;
+                statements_read: number;
+                unproven_monthly_deposits: number | null;
+            } | null;
+        };
         SerializedDecisionLetter: {
             case_id: string | null;
             created_at: string | null;
@@ -1708,14 +2571,38 @@ export type components = {
             status: string;
         };
         SerializedDecisionRequest: {
+            /** @constant */
+            advisory: true;
             applicant_name: string | null;
+            /** @enum {string} */
+            assessment_status: "preliminary" | "supported";
             case_id: string | null;
             created_at: string | null;
             customer_id: string | null;
             decided_at: string | null;
             decision_type: string;
+            /** @description What the policy needs on file and what has arrived. Null when the policy asks for nothing and nothing was attached.
+             *
+             *     Trend triggers that fired on an account review: also sent as `account.early_warning`. Empty when none did. */
+            early_warnings: {
+                action: string;
+                baseline: number | null;
+                change_pct: number | null;
+                current: number | null;
+                id: string;
+                label: string;
+                metric: string;
+                note: string;
+            }[];
             error: string | null;
+            evidence: components["schemas"]["SerializedDecisionEvidence"] | null;
             external_id: string | null;
+            fact_provenance: {
+                key: string;
+                /** @enum {string} */
+                provenance: "merchant_reported" | "extracted" | "inferred";
+                source: string;
+            }[];
             final_outcome: {
                 amount: number | null;
                 note: string | null;
@@ -1723,16 +2610,33 @@ export type components = {
                 recorded_at: string | null;
             } | null;
             id: string;
-            /** @description Milliseconds from submission to decision. */
+            information_requests: components["schemas"]["InformationRequest"][];
+            /** @description Milliseconds from submission to decision. For a request that waited for evidence: from the moment the evidence was complete. */
             latency_ms: number | null;
             letter_id: string | null;
+            limitations: string[];
             mode: string;
             /** @constant */
             object: "decision";
+            /** @description `api`: your system sent it. `scheduled_review`: opened by the platform because the policy's `monitoring` schedule came due. */
+            origin: string;
+            /** @description Why a scheduled review was opened, e.g. "92 days since the last decision". Null for `api`. */
+            origin_reason: string | null;
             /** @description Your own system's verdict, as sent, in our vocabulary. */
             partner_verdict: string | null;
             /** @description The instant policy pre-check: every knock-out rule with its result, the cap, missing facts. */
             policy: {
+                /** @description Account reviews under a policy with an increase rule: whether a higher limit was earned, with each test. Null otherwise. */
+                increase: {
+                    checks: {
+                        check: string;
+                        detail: string;
+                        passed: boolean | null;
+                    }[];
+                    note: string;
+                    recommended_limit: number | null;
+                    result: string;
+                } | null;
                 knocked_out: boolean;
                 max_amount: number | null;
                 missing_facts: string[];
@@ -1742,6 +2646,20 @@ export type components = {
                     label: string;
                     result: string;
                     value: unknown;
+                }[];
+                /** @description The limit the applicant's current cash flow supports, when the policy sizes limits (`limit_sizing`); null otherwise. */
+                supported_limit: number | null;
+                /** @description The supported limit's math in one sentence, e.g. "Supported limit is 50% of average monthly deposits of $7,000 = $3,500". */
+                supported_limit_explanation: string | null;
+                /** @description Every trend trigger: `fired`, `not_fired` or `skipped` (no baseline), with the baseline and current value. Empty when the policy has none. */
+                triggers: {
+                    action: string;
+                    baseline: number | null;
+                    current: number | null;
+                    id: string;
+                    label: string;
+                    metric: string;
+                    result: string;
                 }[];
                 version: number | null;
             } | null;
@@ -1761,7 +2679,7 @@ export type components = {
                     direction: string;
                     factor: string;
                 }[];
-                /** @description approve, counter, decline or refer (new_credit, limit_change); keep, reduce, close or refer (account_review). */
+                /** @description approve, counter, decline or refer (new_credit, limit_change); keep, increase, reduce, close or refer (account_review). */
                 outcome: string;
                 /** @description Up to four, for adverse outcomes; letter-ready. */
                 reasons: {
@@ -1773,8 +2691,9 @@ export type components = {
             } | null;
             /** @description True for a test-mode scenario: no model was called and no evidence was assessed. */
             simulated: boolean;
-            /** @description `queued` or `deciding` while the agent works; `decided` or `failed` when done. */
+            /** @description `awaiting_evidence` while documents or facts the policy needs are outstanding (see `evidence`); `queued` or `deciding` while the agent works; `decided` or `failed` when done. */
             status: string;
+            website_research: components["schemas"]["WebsiteResearch"] | null;
         };
         SerializedDocument: {
             applicant: string | null;
@@ -1811,6 +2730,18 @@ export type components = {
             /** @description `legal` | `charge_off` — the escalation the caller asked for. */
             escalation_type: string;
             loan_id: string;
+        };
+        /** @description Accepted incremental evidence; GET the same case for authoritative progress. */
+        SerializedEvidenceAccepted: {
+            analysis_id: string;
+            case_id: string;
+            next_action: {
+                /** @constant */
+                method: "GET";
+                path: string;
+            };
+            /** @constant */
+            status: "queued";
         };
         SerializedLoan: {
             borrower: string;
@@ -1870,6 +2801,40 @@ export type components = {
             schedule: components["schemas"]["SerializedAmortizationRow"][];
             /** @description The loan's CONTRACTUAL term. */
             term_months: number;
+        };
+        SerializedMe: {
+            key: components["schemas"]["SerializedMeKey"];
+            organization: components["schemas"]["SerializedMeOrganization"];
+        };
+        /** @description The calling key. Never carries the key or its hash. */
+        SerializedMeKey: {
+            created_at: string;
+            id: string;
+            last_used_at: string | null;
+            /** @enum {string} */
+            mode: "test" | "live";
+            name: string;
+            /** @description The leading characters of the key, as the dashboard lists it. Not a secret. */
+            prefix: string;
+            /** @description The scopes this key holds. A scope the current API no longer knows is omitted. */
+            scopes: string[];
+        };
+        /** @description The organization the key belongs to. */
+        SerializedMeOrganization: {
+            /** @description Whether this organization can create cases. False until business
+             *     verification is approved; while false, `POST /v1/underwrite` returns 403
+             *     `forbidden` and every application in a `POST /v1/underwrite/batch` is
+             *     refused, whatever scopes the key holds. */
+            can_underwrite: boolean;
+            id: string;
+            name: string;
+            /**
+             * @description Business verification. `pending` is submitted and awaiting review;
+             *     `not_submitted` covers an organization that has not finished onboarding or
+             *     deferred verification.
+             * @enum {string}
+             */
+            verification_status: "verified" | "pending" | "rejected" | "not_submitted";
         };
         SerializedPayment: {
             /** @description WHOLE DOLLARS. Every money field on this object is. */
@@ -2067,6 +3032,74 @@ export type components = {
             updated_at: string | null;
             url: string;
         };
+        /** @description Public, measured statement fields. Money is whole dollars; null means not read. */
+        StatementMonthlyRow: {
+            avg_daily_balance: number | null;
+            beginning_balance: number | null;
+            deposit_count: number | null;
+            deposits: number | null;
+            document_id: string | null;
+            ending_balance: number | null;
+            file_name: string;
+            largest_deposit: number | null;
+            lowest_balance: number | null;
+            negative_days: number | null;
+            nsf_count: number | null;
+            period: string | null;
+            withdrawals: number | null;
+        };
+        UnderwritingAssessment: {
+            /** @description What the analysis's confidence number measures. Null when no analysis has run. */
+            confidence_basis: string | null;
+            creditworthiness: {
+                /** @description The analysis risk score, published only when the borrower was actually assessed. */
+                borrower_risk_score: number | null;
+                /** @description Why it could not be assessed; null when assessed. */
+                reason: string | null;
+                /** @enum {string} */
+                status: "assessed" | "undetermined";
+            };
+            /** @enum {string} */
+            decision_basis: "document_integrity" | "insufficient_evidence" | "creditworthiness" | "no_decision_yet";
+            document_integrity: {
+                integrity_score: number | null;
+                /** @enum {string} */
+                status: "pass" | "fail" | "unverified" | "not_applicable";
+                verdict: ("Authentic" | "Suspicious" | "Altered" | "Fake" | "Unverified") | null;
+            };
+            evidence_sufficiency: {
+                /** @description Plain-language list of what is missing or failed. Empty when sufficient. */
+                missing: string[];
+                /** @enum {string} */
+                status: "sufficient" | "partial" | "insufficient";
+            };
+        };
+        WebsiteFinding: {
+            application_value: string | null;
+            explanation: string;
+            field: string;
+            /** @enum {string} */
+            finding: "consistent" | "potential_contradiction" | "additional_context";
+            quote: string;
+            source_url: string;
+            website_value: string;
+        };
+        WebsiteResearch: {
+            findings: components["schemas"]["WebsiteFinding"][];
+            limitations: string[];
+            profile_hash: string;
+            researched_at: string;
+            sources: {
+                content_hash: string;
+                fetched_at: string;
+                truncated: boolean;
+                url: string;
+            }[];
+            /** @enum {string} */
+            status: "completed" | "partial" | "unavailable" | "not_provided";
+            summary: string;
+            website: string | null;
+        };
     };
     responses: never;
     parameters: never;
@@ -2076,6 +3109,226 @@ export type components = {
 };
 export type $defs = Record<string, never>;
 export interface operations {
+    post_accounts_by_customerId_signals: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the first response for a repeated request. Reusing a key with a different body is `idempotency_key_reused` (409), never a silent replay. */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Your reference for this signal. */
+                    external_id?: string | null;
+                    /** @description What your system now knows about this account, by the same names as on `POST /v1/decisions`: for example `avg_monthly_deposits`, `nsf_count_90d`, `days_past_due`, or figures from the customer's books such as `missed_vendor_payments_90d` and `payables_overdue`. The current limit is carried over from the last decision; send `current_limit` only to correct it. A figure you leave out is unknown to the review. */
+                    facts: {
+                        [key: string]: unknown;
+                    };
+                    /** @description Why you are sending this, in a few words. Shown on the review. */
+                    note?: string | null;
+                    /** @description The product the account is under. Needed only when this customer has accounts under more than one. */
+                    product?: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SerializedDecisionRequest"];
+                };
+            };
+            /** @description error.code is one of: validation_error. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: unauthorized. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: forbidden. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: rate_limit_exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: internal_error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_accounts_performance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The accepted body fields of this operation are NOT derivable from the source: the route validates its body with hand-written checks rather than a zod schema, so this document publishes no field list instead of publishing a guessed one. The refused parameters under `x-refused-parameters` ARE derived and are exact. */
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description error.code is one of: validation_error. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: unauthorized. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: forbidden. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: rate_limit_exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: internal_error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_accounts_vintages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv; charset=utf-8": string;
+                };
+            };
+            /** @description error.code is one of: unauthorized. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: forbidden. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: rate_limit_exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: internal_error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     get_applicants: {
         parameters: {
             query?: {
@@ -3276,7 +4529,7 @@ export interface operations {
                      * @description Defaults to `other`. Matched case-insensitively; the label spelling ("ID Verification") is accepted too.
                      * @enum {string}
                      */
-                    category?: "stipulation" | "contract" | "id_verification" | "financial" | "insurance" | "legal" | "other";
+                    category?: "stipulation" | "contract" | "id_verification" | "financial" | "processing" | "insurance" | "legal" | "other";
                     /** @description Alias of `name`, read only when `name` is absent. */
                     description?: string;
                     /** Format: binary */
@@ -3335,6 +4588,140 @@ export interface operations {
                 };
             };
             /** @description error.code is one of: conflict, idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: rate_limit_exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: internal_error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_cases_by_id_facts: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the first response for a repeated request. Reusing a key with a different body is `idempotency_key_reused` (409), never a silent replay. */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    consent?: {
+                        /** @description Your version identifier for that text, e.g. `esign-v3`. Stored for audit. */
+                        accepted_text_version?: string;
+                        /** @description True when the applicant attested that the information supplied is accurate. */
+                        accuracy?: boolean;
+                        /** @description Link to the exact agreement text the applicant accepted. Stored for audit. */
+                        agreement_url?: string;
+                        /** @description True when the applicant authorized identity and background verification. */
+                        background_check?: boolean;
+                        /** @description True when the applicant authorized a consumer credit report on the owner named in `applicant.owner`. This is the permissible-purpose assertion the bureau pull relies on. */
+                        credit_check?: boolean;
+                        /** @description True when the applicant accepted your terms of service. */
+                        terms?: boolean;
+                    };
+                    evidence_case_ids?: string[];
+                    facts?: {
+                        [key: string]: string | number | boolean | null;
+                    };
+                    owner?: {
+                        /** @description Home street address. */
+                        address?: string;
+                        city?: string;
+                        /** @description `YYYY-MM-DD`. Required by most bureaus to resolve an identity. */
+                        date_of_birth?: string;
+                        /** @description Owner's legal first name. */
+                        first_name: string;
+                        /** @description Owner's legal last name. */
+                        last_name: string;
+                        /** @description 0-100. The share of the business this owner holds. */
+                        ownership_percent?: number | null;
+                        postal_code?: string;
+                        /** @description The owner's FULL SSN (`123-45-6789` or `123456789`). The soft credit pull (iSoftpull Full JSON Feed) matches on the full 9 digits together with name, home address and date of birth; a last-four-only value is accepted for backward compatibility but is NOT sent to the bureau. The full value is encrypted at rest, sent only to the credit bureau, and never returned by any endpoint; `application_data.ownerSSN` shows only the last four. */
+                        ssn?: string;
+                        /** @description Two-letter US state code. */
+                        state?: string;
+                        /** @description Role at the business, e.g. `CEO`. */
+                        title?: string;
+                    };
+                    requested_amount?: number | null;
+                    /** Format: uri */
+                    website?: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Success. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SerializedEvidenceAccepted"];
+                };
+            };
+            /** @description error.code is one of: validation_error. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: unauthorized. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: forbidden. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: not_found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: idempotency_key_reused. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3453,6 +4840,15 @@ export interface operations {
                     "application/json": components["schemas"]["SerializedAnalysisJob"] & {
                         message: unknown;
                     };
+                };
+            };
+            /** @description error.code is one of: validation_error. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             /** @description error.code is one of: unauthorized. */
@@ -3922,8 +5318,21 @@ export interface operations {
                     decision_type: "new_credit" | "limit_change" | "account_review";
                     /** @description Your product key, or `*` for every product without its own policy. */
                     product: string;
-                    /** @description Knock-outs, caps, required facts, the refer threshold and your credit policy in words. */
+                    /** @description Knock-outs, caps, cash-flow limit sizing, trend triggers, required facts, the refer threshold and your credit policy in words. */
                     rules: {
+                        /** @description How long a request waits for its documents before it is referred to a person. Default 14. */
+                        evidence_wait_days?: number;
+                        /** @description account_review only: let a review recommend a higher limit when the account has earned one. Needs `limit_sizing`. Decided in code, never by the model. */
+                        increase?: {
+                            /** @description The most one increase may add, as a percentage of the current limit. Default 50. */
+                            max_increase_pct?: number;
+                            /** @description Recommend an increase only when the supported limit is at least this percentage above the current limit. Default 20. */
+                            min_headroom_pct?: number;
+                            /** @description The account must have been open at least this many months. Default 3 (the 'day 90' rule). */
+                            min_months_on_book?: number;
+                            /** @description Months since the limit last changed before it may be raised again. Default 3. */
+                            min_months_since_limit_change?: number;
+                        } | null;
                         /** @description Your credit policy in words, for the model: risk appetite, what you weigh, what you never do. */
                         instructions?: string;
                         /** @description A request that trips any of these is declined by policy; the model is never asked to overrule it. */
@@ -3944,16 +5353,83 @@ export interface operations {
                             /** @description The value compared against; a list for in / not_in. */
                             value?: number | string | boolean | (number | string)[] | null;
                         }[];
+                        /** @description Cash-flow limit sizing: the supported limit is `pct`% of the basis. Approvals above it become a counter at it; an account review whose current limit is above it (beyond the tolerance) is reduced to it. Enforced in code. */
+                        limit_sizing?: {
+                            /**
+                             * @description The monthly figure the limit is sized on: avg_monthly_deposits, monthly_revenue (annual_revenue / 12 when only that is sent) or monthly_net_cash_flow.
+                             * @enum {string}
+                             */
+                            basis: "avg_monthly_deposits" | "monthly_revenue" | "monthly_net_cash_flow";
+                            /** @description Never size above this. */
+                            max_amount?: number | null;
+                            /** @description Never size below this (when the basis is positive). */
+                            min_amount?: number | null;
+                            /** @description The supported limit is this percentage of the basis, e.g. 50 = half a month of deposits. */
+                            pct: number;
+                            /** @description account_review: the current limit may sit this far above the supported limit before it must be reduced. Default 10. */
+                            reduce_tolerance_pct?: number | null;
+                            /** @description Round the supported limit DOWN to a multiple of this, e.g. 100. */
+                            round_to?: number | null;
+                        } | null;
                         /** @description Never approve more than this. */
                         max_amount?: number | null;
                         /** @description Never approve more than this percentage of monthly revenue (when revenue is known). */
                         max_amount_pct_of_monthly_revenue?: number | null;
                         /** @description limit_change: never raise a limit by more than this percentage. */
                         max_increase_pct?: number | null;
+                        /** @description account_review only: open a review for each customer on a schedule, without your system asking. The review waits at `awaiting_evidence` for fresh facts or documents. */
+                        monitoring?: {
+                            /** @description Open an account review for a customer when this many days have passed since their last decision. */
+                            review_every_days: number;
+                        } | null;
                         /** @description A model decision below this confidence is referred to a person. Default 60. */
                         refer_below_confidence?: number;
+                        /** @description Documents a request needs before it is decided. While any is outstanding the request waits at `awaiting_evidence` and the response lists exactly what is missing. Bank statements are read and checked month by month; other kinds are checked for presence. */
+                        required_documents?: {
+                            /** @description Stable requirement id, shown in results. */
+                            id: string;
+                            /**
+                             * @description bank_statements are read and checked month by month. Every other kind is checked for presence only.
+                             * @enum {string}
+                             */
+                            kind: "bank_statements" | "card_statements" | "financial_statements" | "tax_return" | "other";
+                            /** @description What you are asking for, in words. Shown to your team and returned in the API. */
+                            label: string;
+                            /** @description Other kinds: how many files of this kind are needed. Default 1. */
+                            min_files?: number | null;
+                            /** @description bank_statements: how many of the most recent consecutive months must be covered. Default 3. */
+                            months?: number | null;
+                            /** @description Only require this when the requested amount is at least this much. Omit to always require it. */
+                            when_amount_at_least?: number | null;
+                        }[];
                         /** @description Facts the agent needs; a request missing one is referred to a person. */
                         required_facts?: string[];
+                        /** @description Trend triggers: compare a metric with its baseline (`prior_<metric>`) and act when it moves too far. Enforced in code. */
+                        triggers?: {
+                            /**
+                             * @description reduce_to_supported (reduce for account_review, counter otherwise), refer, decline or close. Mapped to the outcomes the decision type allows.
+                             * @enum {string}
+                             */
+                            action: "reduce_to_supported" | "refer" | "decline" | "close";
+                            /**
+                             * @description drop_pct / rise_pct (percent of the baseline) or drop_abs / rise_abs (in the metric's own units).
+                             * @enum {string}
+                             */
+                            change: "drop_pct" | "rise_pct" | "drop_abs" | "rise_abs" | "at_least" | "at_most";
+                            /** @description Stable trigger id, shown in results. */
+                            id: string;
+                            /** @description What the trigger watches, in words. */
+                            label: string;
+                            /**
+                             * @description The fact watched. Its baseline is `prior_<metric>` (sent by you, else from this customer's history).
+                             * @enum {string}
+                             */
+                            metric: "avg_monthly_deposits" | "monthly_revenue" | "monthly_net_cash_flow" | "nsf_count_90d" | "utilization_pct" | "credit_score" | "days_past_due" | "missed_vendor_payments_90d" | "payables_overdue" | "monthly_net_income";
+                            /** @description The adverse-action reason code a fired trigger carries (see the reason catalog). */
+                            reason: string;
+                            /** @description The trigger fires when the change is at least this. */
+                            threshold: number;
+                        }[];
                     };
                 };
             };
@@ -4111,33 +5587,59 @@ export interface operations {
                     applicant: {
                         address?: {
                             city?: string;
+                            country?: string;
                             line1?: string;
+                            line2?: string;
                             state?: string;
                             zip?: string;
                         } | null;
+                        /** @description Doing-business-as name. */
+                        dba?: string | null;
+                        /** @description Employer Identification Number. Only the last four digits are stored and shown. */
+                        ein?: string | null;
                         /**
                          * Format: email
                          * @description Where an adverse-action letter goes, if you report an adverse final outcome and letters are emailed.
                          */
                         email?: string | null;
+                        /** @description LLC, corporation, sole proprietorship, ... */
+                        entity_type?: string | null;
+                        industry?: string | null;
+                        /** @description Registered legal name, when it differs from `name`. */
+                        legal_name?: string | null;
                         /** @description Legal name of the business or person, as it should appear on a letter. */
                         name: string;
+                        /** @description The principal owner or guarantor. */
+                        owner?: {
+                            /** Format: email */
+                            email?: string | null;
+                            name?: string | null;
+                            ownership_pct?: number | null;
+                            phone?: string | null;
+                            title?: string | null;
+                        } | null;
+                        phone?: string | null;
                         /** @enum {string|null} */
                         type?: "business" | "individual" | null;
+                        website?: string | null;
                     };
+                    /** @description Default false. Enable only for legacy single-business owners; explicit case_id is preferred. */
+                    auto_match_email?: boolean;
+                    /** @description Stable business identity. Use distinct ids for businesses sharing an owner or email. */
+                    business_id?: string;
                     /** @description The onboarding case this customer was underwritten in, so the agent can use its bank, credit and background evidence. */
                     case_id?: string | null;
                     /** @description Your customer id: links this request to earlier decisions for the same customer. */
                     customer_id?: string | null;
                     /**
-                     * @description new_credit (approve / counter / decline / refer), limit_change (same, `requested_amount` is the NEW limit), account_review (keep / reduce / close / refer).
+                     * @description new_credit (approve / counter / decline / refer), limit_change (same, `requested_amount` is the NEW limit), account_review (keep / increase / reduce / close / refer).
                      * @enum {string}
                      */
                     decision_type: "new_credit" | "limit_change" | "account_review";
                     /** @description Your reference for this request. */
                     external_id?: string | null;
-                    /** @description Everything your system knows, under your own names: `credit_score`, `annual_revenue`, `time_in_business_months`, `nsf_count_90d`, `current_limit`, `requested_amount`, ... Common aliases are recognised (FICO, revenue, months_in_business); one level of nesting is flattened; anything else reaches the agent as-is. */
-                    facts: {
+                    /** @description Everything your system knows, under your own names: `credit_score`, `annual_revenue`, `avg_monthly_deposits`, `time_in_business_months`, `nsf_count_90d`, `current_limit`, `requested_amount`, ... Common aliases are recognised (FICO, revenue, months_in_business); one level of nesting is flattened; anything else reaches the agent as-is. Baselines for trend triggers are `prior_<metric>` (e.g. `prior_avg_monthly_deposits` at approval); without them the agent uses this customer's earlier requests and onboarding case. */
+                    facts?: {
                         [key: string]: unknown;
                     };
                     /** @description Your own system's verdict, if it already made one (e.g. `auto_approved`). The agent reports whether it agrees. */
@@ -4189,7 +5691,16 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description error.code is one of: idempotency_key_reused. */
+            /** @description error.code is one of: not_found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: conflict, idempotency_key_reused. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4285,6 +5796,263 @@ export interface operations {
             };
         };
     };
+    get_decisions_by_id_documents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SerializedDecisionDocument"];
+                };
+            };
+            /** @description error.code is one of: unauthorized. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: forbidden. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: not_found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: rate_limit_exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: internal_error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_decisions_by_id_documents: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the first response for a repeated request. Reusing a key with a different body is `idempotency_key_reused` (409), never a silent replay. */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        /** @description Multipart upload. The accepted body fields of this operation are NOT derivable from the source: the route validates its body with hand-written checks rather than a zod schema, so this document publishes no field list instead of publishing a guessed one. The refused parameters under `x-refused-parameters` ARE derived and are exact. */
+        requestBody: {
+            content: {
+                "multipart/form-data": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Success. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SerializedDecisionRequest"];
+                };
+            };
+            /** @description error.code is one of: validation_error. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: unauthorized. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: forbidden. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: not_found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: conflict, idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: rate_limit_exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: internal_error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_decisions_by_id_facts: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the first response for a repeated request. Reusing a key with a different body is `idempotency_key_reused` (409), never a silent replay. */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Facts for a decision that is waiting at `awaiting_evidence`, by the same names as on `POST /v1/decisions`. A fact sent again replaces the earlier value. For a scheduled review, send the ones listed under `evidence.facts_needed`. */
+                    facts: {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SerializedDecisionRequest"];
+                };
+            };
+            /** @description error.code is one of: validation_error. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: unauthorized. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: forbidden. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: not_found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: conflict, idempotency_key_reused. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: rate_limit_exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: internal_error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     post_decisions_by_id_outcome: {
         parameters: {
             query?: never;
@@ -4300,7 +6068,7 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    /** @description The amount or limit you granted, for approve / counter / reduce. */
+                    /** @description The amount or limit you granted, for approve / counter / increase / reduce. */
                     amount?: number | null;
                     /** @description Your note, kept with the decision. */
                     note?: string | null;
@@ -4308,7 +6076,7 @@ export interface operations {
                      * @description What you finally did. decline, counter, reduce and close are adverse action: the applicant's letter is issued under your branding.
                      * @enum {string}
                      */
-                    outcome: "approve" | "counter" | "decline" | "keep" | "reduce" | "close";
+                    outcome: "approve" | "counter" | "decline" | "keep" | "increase" | "reduce" | "close";
                 };
             };
         };
@@ -4360,6 +6128,71 @@ export interface operations {
             };
             /** @description error.code is one of: idempotency_key_reused. */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: rate_limit_exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: internal_error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_decisions_export: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv; charset=utf-8": string;
+                };
+            };
+            /** @description error.code is one of: validation_error. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: unauthorized. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: forbidden. */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4605,6 +6438,53 @@ export interface operations {
             };
             /** @description error.code is one of: not_found. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: rate_limit_exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description error.code is one of: internal_error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SerializedMe"];
+                };
+            };
+            /** @description error.code is one of: unauthorized. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5081,7 +6961,7 @@ export interface operations {
                         last_name?: unknown;
                         /** @description Full name. Required unless `first_name` and/or `last_name` is sent. */
                         name?: string | null;
-                        /** @description The primary owner or personal guarantor. Typed because credit and background checks run against these values — do not put them in `application_data`. `ssn` is encrypted at rest and never returned. */
+                        /** @description The primary owner or personal guarantor. Typed because credit and background checks run against these values — do not put them in `application_data`. The soft credit pull matches on the full `ssn`, name, home address and date of birth; `ssn` is encrypted at rest and never returned. */
                         owner?: {
                             /** @description Home street address. */
                             address?: string;
@@ -5093,9 +6973,9 @@ export interface operations {
                             /** @description Owner's legal last name. */
                             last_name: string;
                             /** @description 0-100. The share of the business this owner holds. */
-                            ownership_percent?: number;
+                            ownership_percent?: number | null;
                             postal_code?: string;
-                            /** @description Full SSN (`123-45-6789` or `123456789`) or just the last four. THE FULL VALUE IS NEVER STORED: it is reduced to the last four at the request boundary and the remainder is discarded, because the bureau integration identifies on last-four plus name, date of birth and address. Never returned by any endpoint. */
+                            /** @description The owner's FULL SSN (`123-45-6789` or `123456789`). The soft credit pull (iSoftpull Full JSON Feed) matches on the full 9 digits together with name, home address and date of birth; a last-four-only value is accepted for backward compatibility but is NOT sent to the bureau. The full value is encrypted at rest, sent only to the credit bureau, and never returned by any endpoint; `application_data.ownerSSN` shows only the last four. */
                             ssn?: string;
                             /** @description Two-letter US state code. */
                             state?: string;
@@ -5113,6 +6993,11 @@ export interface operations {
                     application_data?: {
                         [key: string]: unknown;
                     } | null;
+                    /**
+                     * @description Normal underwriting never reuses evidence by email. Only false is accepted.
+                     * @constant
+                     */
+                    auto_match_email?: false;
                     /** @description The boolean `true` also mints a bank-verification link and returns it as `bank_link_url`. Any other value (including the string "true") requests no link. */
                     bank_link?: unknown;
                     /**
@@ -5120,6 +7005,8 @@ export interface operations {
                      * @enum {string|null}
                      */
                     bank_verification?: "plaid" | "statements" | "none" | null;
+                    /** @description Stable identity of this business, not the owner email. Required when reusing cases that have a business_id. */
+                    business_id?: string;
                     /** @description The applicant's authorizations. PRESENCE of the object is what records consent; `credit_check` is what a bureau pull requires. The timestamp and the caller's IP are recorded server-side and cannot be supplied. */
                     consent?: {
                         /** @description Your version identifier for that text, e.g. `esign-v3`. Stored for audit. */
@@ -5135,6 +7022,12 @@ export interface operations {
                         /** @description True when the applicant accepted your terms of service. */
                         terms?: boolean;
                     } | null;
+                    /** @description Explicit cases of this same business and key mode whose documents may be reused. No email matching. */
+                    evidence_case_ids?: string[];
+                    /** @description Available merchant-reported facts. Omitted and null values remain unknown. Processing volume is distinct from revenue. */
+                    facts?: {
+                        [key: string]: string | number | boolean | null;
+                    };
                     /** @description Arbitrary key-value pairs for your own reference; stored and returned verbatim. */
                     metadata?: {
                         [key: string]: unknown;
@@ -5150,6 +7043,8 @@ export interface operations {
                      * @enum {string|null}
                      */
                     scenario?: "approve" | "decline" | "review" | null;
+                    /** Format: uri */
+                    website?: string | null;
                 };
             };
         };
@@ -5246,7 +7141,7 @@ export interface operations {
                             last_name?: unknown;
                             /** @description Full name. Required unless `first_name` and/or `last_name` is sent. */
                             name?: string | null;
-                            /** @description The primary owner or personal guarantor. Typed because credit and background checks run against these values — do not put them in `application_data`. `ssn` is encrypted at rest and never returned. */
+                            /** @description The primary owner or personal guarantor. Typed because credit and background checks run against these values — do not put them in `application_data`. The soft credit pull matches on the full `ssn`, name, home address and date of birth; `ssn` is encrypted at rest and never returned. */
                             owner?: {
                                 /** @description Home street address. */
                                 address?: string;
@@ -5258,9 +7153,9 @@ export interface operations {
                                 /** @description Owner's legal last name. */
                                 last_name: string;
                                 /** @description 0-100. The share of the business this owner holds. */
-                                ownership_percent?: number;
+                                ownership_percent?: number | null;
                                 postal_code?: string;
-                                /** @description Full SSN (`123-45-6789` or `123456789`) or just the last four. THE FULL VALUE IS NEVER STORED: it is reduced to the last four at the request boundary and the remainder is discarded, because the bureau integration identifies on last-four plus name, date of birth and address. Never returned by any endpoint. */
+                                /** @description The owner's FULL SSN (`123-45-6789` or `123456789`). The soft credit pull (iSoftpull Full JSON Feed) matches on the full 9 digits together with name, home address and date of birth; a last-four-only value is accepted for backward compatibility but is NOT sent to the bureau. The full value is encrypted at rest, sent only to the credit bureau, and never returned by any endpoint; `application_data.ownerSSN` shows only the last four. */
                                 ssn?: string;
                                 /** @description Two-letter US state code. */
                                 state?: string;
@@ -5278,6 +7173,11 @@ export interface operations {
                         application_data?: {
                             [key: string]: unknown;
                         } | null;
+                        /**
+                         * @description Normal underwriting never reuses evidence by email. Only false is accepted.
+                         * @constant
+                         */
+                        auto_match_email?: false;
                         /** @description The boolean `true` also mints a bank-verification link and returns it as `bank_link_url`. Any other value (including the string "true") requests no link. */
                         bank_link?: unknown;
                         /**
@@ -5285,6 +7185,8 @@ export interface operations {
                          * @enum {string|null}
                          */
                         bank_verification?: "plaid" | "statements" | "none" | null;
+                        /** @description Stable identity of this business, not the owner email. Required when reusing cases that have a business_id. */
+                        business_id?: string;
                         /** @description The applicant's authorizations. PRESENCE of the object is what records consent; `credit_check` is what a bureau pull requires. The timestamp and the caller's IP are recorded server-side and cannot be supplied. */
                         consent?: {
                             /** @description Your version identifier for that text, e.g. `esign-v3`. Stored for audit. */
@@ -5300,6 +7202,12 @@ export interface operations {
                             /** @description True when the applicant accepted your terms of service. */
                             terms?: boolean;
                         } | null;
+                        /** @description Explicit cases of this same business and key mode whose documents may be reused. No email matching. */
+                        evidence_case_ids?: string[];
+                        /** @description Available merchant-reported facts. Omitted and null values remain unknown. Processing volume is distinct from revenue. */
+                        facts?: {
+                            [key: string]: string | number | boolean | null;
+                        };
                         /** @description Arbitrary key-value pairs for your own reference; stored and returned verbatim. */
                         metadata?: {
                             [key: string]: unknown;
@@ -5315,6 +7223,8 @@ export interface operations {
                          * @enum {string|null}
                          */
                         scenario?: "approve" | "decline" | "review" | null;
+                        /** Format: uri */
+                        website?: string | null;
                     }[];
                 };
             };
@@ -5544,7 +7454,7 @@ export interface operations {
                     /** @description Your own label for this endpoint, at most 200 characters after trimming. */
                     description?: string | null;
                     /** @description Event types to subscribe to. At least one. Duplicates are collapsed, not refused. */
-                    events: ("application.received" | "application.decided" | "application.needs_review" | "application.analysis_failed" | "batch.completed" | "document.analyzed" | "bank_link.connected" | "letter.issued" | "decision.completed")[];
+                    events: ("application.received" | "application.information_requested" | "application.evidence_received" | "application.analysis_resumed" | "application.analysis_completed" | "application.decided" | "application.needs_review" | "application.analysis_failed" | "batch.completed" | "document.analyzed" | "bank_link.connected" | "letter.issued" | "decision.completed" | "decision.evidence_received" | "decision.analysis_resumed" | "decision.evidence_required" | "account.early_warning")[];
                     /** @description Product slugs this endpoint should hear about. Omit or send an empty array to hear about every product — the default. Naming products matters when several teams integrate under one organization: without a filter, this endpoint also receives the other lines' events. At most 60, and slugs are not checked against the catalog, so a typo produces a quiet endpoint rather than a failed registration. */
                     products?: string[] | null;
                     /** @description The https:// endpoint to deliver to. http://, private hosts and IP literals are refused. */

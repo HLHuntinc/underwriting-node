@@ -13,6 +13,14 @@ type Query<Op extends keyof operations> = operations[Op] extends { parameters: {
 // ─── Resources ──────────────────────────────────────────────────────────────
 
 export type CaseSummary = Schemas["SerializedCaseSummary"]
+export type AvailableAssessment = Schemas["AvailableAssessment"]
+export type InformationRequest = Schemas["InformationRequest"]
+export type DecisionDocument = Schemas["SerializedDecisionDocument"]
+export type CaseFactsParams = JsonBody<"post_cases_by_id_facts">
+export type DecisionFactsParams = JsonBody<"post_decisions_by_id_facts">
+export type EvidenceAccepted = Schemas["SerializedEvidenceAccepted"]
+export type WebsiteResearch = Schemas["WebsiteResearch"]
+export type ProcessingEvidence = Schemas["ProcessingEvidence"]
 export type CaseDetail = Schemas["SerializedCaseDetail"]
 export type CaseDecision = Schemas["SerializedCaseDecision"]
 export type CaseProgress = Schemas["SerializedCaseProgress"]
@@ -96,6 +104,14 @@ export interface DecisionPolicy {
 }
 
 export type WebhookEventType =
+  | "application.information_requested"
+  | "application.evidence_received"
+  | "application.analysis_resumed"
+  | "application.analysis_completed"
+  | "decision.evidence_required"
+  | "decision.evidence_received"
+  | "decision.analysis_resumed"
+  | "account.early_warning"
   | "application.received"
   | "application.decided"
   | "application.needs_review"
@@ -119,7 +135,28 @@ export interface LetterIssued {
 }
 
 /** What each event carries in `data`. */
+export interface CaseAnalysisEvent {
+  case_id: string
+  application_id: string
+  business_id: string | null
+  mode: "test" | "live"
+  occurred_at: string
+  updated_at: string
+  analysis_id?: string
+  assessment?: AvailableAssessment
+  information_requests?: InformationRequest[]
+  document_id?: string
+  fact_keys?: string[]
+}
 export interface WebhookEventData {
+  "application.information_requested": CaseAnalysisEvent
+  "application.evidence_received": CaseAnalysisEvent
+  "application.analysis_resumed": CaseAnalysisEvent
+  "application.analysis_completed": CaseAnalysisEvent
+  "decision.evidence_required": Decision
+  "decision.evidence_received": Decision
+  "decision.analysis_resumed": Decision
+  "account.early_warning": Record<string, unknown>
   "application.received": CaseSummary
   "application.decided": CaseDecision
   "application.needs_review": CaseDecision

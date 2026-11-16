@@ -319,6 +319,8 @@ no result. Sent means the provider call succeeded, not inbox receipt. Reused mea
 no new email; changing delivery does not force a resend. Expiry is seven days from
 creation, and reuse does not extend it. Recipient overrides are not supported.
 
+The first bank link per case is included in underwriting. Each additional live link request uses the global admin-set fee (initially $1.50). Reuse and idempotent retries are free; test requests are free. Set `resend: true` only when intentionally creating a replacement and accepting that additional-request fee. Older usable links are expired. The fee is for the request, even if email delivery fails or the applicant never connects.
+
 The portal URL is a **bearer secret**: keep it out of logs, analytics and public
 pages. Never embed API keys in email templates, URLs or browser code. There is no
 separate token. Omit submission-time `bank_link: true` / `bank_verification: "plaid"`

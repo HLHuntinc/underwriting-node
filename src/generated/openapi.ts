@@ -3044,6 +3044,7 @@ export type components = {
         };
         /** @description Public, measured statement fields. Money is whole dollars; null means not read. */
         StatementMonthlyRow: {
+            account_last4?: string | null;
             avg_daily_balance: number | null;
             beginning_balance: number | null;
             deposit_count: number | null;
@@ -3703,6 +3704,8 @@ export interface operations {
                      * @enum {string}
                      */
                     delivery?: "link_only" | "email";
+                    /** @description Explicitly replace the current link. First link per case is included; additional live requests use the admin-set fee. Default reuse does not charge again. */
+                    resend?: boolean;
                 };
             };
         };

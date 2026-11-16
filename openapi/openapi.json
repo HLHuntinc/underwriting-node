@@ -2774,6 +2774,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "resend": {
+                    "type": "boolean",
+                    "description": "Explicitly replace the current link. First link per case is included; additional live requests use the admin-set fee. Default reuse does not charge again."
+                  },
                   "case_id": {
                     "type": "string",
                     "minLength": 1,
@@ -14035,6 +14039,12 @@
             "type": "string"
           },
           "period": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "account_last4": {
             "type": [
               "string",
               "null"

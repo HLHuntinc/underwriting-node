@@ -1,6 +1,6 @@
 {
   "name": "@hlhunt/underwriting",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Official TypeScript/Node SDK for the HL Hunt Underwriting API: underwriting, the Decision Agent, branded decision letters, portfolio and webhooks.",
   "license": "MIT",
   "author": "HL Hunt",

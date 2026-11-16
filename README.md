@@ -296,3 +296,45 @@ Website research returns quoted public-site findings and source links, not indep
 business verification. Processing extraction keeps volume separate from revenue and credit.
 See the [available-information guide](https://underwriting.hlhunt.org/docs/guides/available-information)
 for field contracts, evidence limits, authorization requirements and update semantics.
+
+### Bank links in your own email template
+
+Funding and payment processors can request a link for an existing case without
+an HL email. Call from your server and place `link.url` in your own email template:
+
+```ts
+const link = await hlhunt.bankLinks.create(
+  { case_id: submitted.id, delivery: "link_only" },
+  { idempotencyKey: `bank-link-${submitted.id}-1` },
+)
+// Save link.id, link.case_id and link.expires_at; pass link.url privately to your template.
+const status = await hlhunt.bankLinks.status(link.id)
+// Successful exchange automatically queues reanalysis; follow analysis completion events.
+// Use cases.reanalyze(link.case_id) only for recovery or a new analysis.
+```
+
+`delivery` defaults to `email`; test keys always suppress email. `delivery_status`
+is `sent`, `suppressed`, `failed`, `reused`, or `unknown` when the service supplies
+no result. Sent means the provider call succeeded, not inbox receipt. Reused means
+no new email; changing delivery does not force a resend. Expiry is seven days from
+creation, and reuse does not extend it. Recipient overrides are not supported.
+
+The portal URL is a **bearer secret**: keep it out of logs, analytics and public
+pages. Never embed API keys in email templates, URLs or browser code. There is no
+separate token. Omit submission-time `bank_link: true` / `bank_verification: "plaid"`
+when planning this flow; those options retain default email behavior.
+
+Retry the same request with the same Idempotency-Key; a changed body or mode returns
+409. Verify and deduplicate `bank_link.connected` webhooks, correlate by `case_id`,
+and retrieve current state. Successful exchange automatically and durably queues
+reanalysis on the same case. `bank_link.connected` means data received, not analysis
+completed. Follow application analysis events and retrieve the updated
+available-information assessment. Manual `cases.reanalyze` is for recovery or a
+new analysis. A connection does not authorize approval.
+
+Link status `processing` means exchange is in progress: do not exchange again;
+contact support if it stays stuck. `email_failed` means email delivery failed,
+not that bank data was received. `review_failed` means bank data was stored but
+the review handoff failed. Do not reconnect or retry exchange after data was
+stored; recover with same-case reanalysis. Original PDF findings and the human
+review hold remain for review.

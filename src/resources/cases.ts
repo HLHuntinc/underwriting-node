@@ -195,7 +195,7 @@ export class Applicants {
 export class BankLinks {
   constructor(private readonly client: APIClient) {}
 
-  /** Mint a bank-connection link for a case. In live mode this emails the applicant. */
+  /** Mint a bank-connection link for a case. Use delivery: "link_only" for your own email template. Defaults to email; test keys suppress email. Treat the returned URL as a bearer secret. */
   create(params: BankLinkCreateParams, options?: RequestOptions): APIPromise<BankLink> {
     return this.client.request({ method: "POST", path: "/v1/bank-link", body: params }, options)
   }

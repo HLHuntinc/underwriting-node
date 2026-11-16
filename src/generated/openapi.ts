@@ -2128,6 +2128,16 @@ export type components = {
         };
         SerializedBankLink: {
             case_id: string;
+            /**
+             * @description Requested delivery mode; test keys always suppress email.
+             * @enum {string}
+             */
+            delivery: "link_only" | "email";
+            /**
+             * @description Outcome of this call, not proof the recipient received an email.
+             * @enum {string}
+             */
+            delivery_status: "sent" | "suppressed" | "failed" | "reused" | "unknown";
             expires_at: string | null;
             id: string;
             status: string;
@@ -3687,6 +3697,12 @@ export interface operations {
                 "application/json": {
                     /** @description The case to mint the link for, as returned by POST /v1/underwrite. */
                     case_id: string;
+                    /**
+                     * @description Use link_only for your own email template: no HL email. Test keys always suppress email. The returned URL is a bearer secret; never embed API keys.
+                     * @default email
+                     * @enum {string}
+                     */
+                    delivery?: "link_only" | "email";
                 };
             };
         };

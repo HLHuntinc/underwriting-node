@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 (2026-11-16)
+
+- Bank links support `delivery: "link_only"` for partner-owned email templates and explicit delivery status.
+- Updated bank verification lifecycle documentation, automatic same-case reanalysis, and recovery guidance.
+
 ## 0.2.0 (2026-11-16)
 
 - Available-information case facts/authorization updates, Decision facts and document methods.
